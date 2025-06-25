@@ -1,4 +1,5 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("//devicetree:dtb.bzl", "dtb")
 load("//devicetree/private:constants.bzl", "TOOLCHAIN_TOOLS")
 
 # Test that $(<tool>) in genrule works.
@@ -17,9 +18,16 @@ filegroup(
     srcs = ["{}_version".format(tool) for tool in TOOLCHAIN_TOOLS],
 )
 
+dtb(
+    name = "empty",
+    srcs = ["empty.dts"],
+)
+
 build_test(
     name = "tests",
     targets = [
+        # keep sorted
+        ":empty",
         ":versions",
     ],
 )

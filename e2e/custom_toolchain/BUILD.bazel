@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@rules_devicetree//devicetree:dtb.bzl", "dtb")
 load("@rules_devicetree//devicetree:toolchain.bzl", "devicetree_toolchain")
 
 devicetree_toolchain(
@@ -36,9 +37,16 @@ genrule(
     toolchains = ["@rules_devicetree//devicetree:resolved_toolchain"],
 )
 
+dtb(
+    name = "empty",
+    srcs = ["empty.dts"],
+)
+
 build_test(
     name = "tests",
     targets = [
+        # keep sorted
         ":dtc_version",
+        ":empty",
     ],
 )

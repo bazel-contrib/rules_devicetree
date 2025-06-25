@@ -3,6 +3,7 @@ Add a basic smoke-test target below.
 """
 
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@rules_devicetree//devicetree:dtb.bzl", "dtb")
 
 # Test that $(DTC) in genrule works.
 genrule(
@@ -14,9 +15,17 @@ genrule(
     toolchains = ["@rules_devicetree//devicetree:resolved_toolchain"],
 )
 
+# Test that an empty dts file can be built.
+dtb(
+    name = "empty",
+    srcs = ["empty.dts"],
+)
+
 build_test(
     name = "tests",
     targets = [
+        # keep sorted
         ":dtc_version",
+        ":empty",
     ],
 )
