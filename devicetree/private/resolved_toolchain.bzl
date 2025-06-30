@@ -15,7 +15,7 @@ def _resolved_toolchain_impl(ctx):
     return [
         toolchain_info,
         toolchain_info.default,
-        toolchain_info.devicetreeinfo,
+        toolchain_info.devicetree_info,
         toolchain_info.template_variables,
     ]
 
