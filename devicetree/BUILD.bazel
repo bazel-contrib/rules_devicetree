@@ -1,4 +1,5 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("//devicetree/private:resolved_toolchain.bzl", "resolved_toolchain")
 
 # For stardoc to reference the files
@@ -17,6 +18,13 @@ resolved_toolchain(
     # Marked manual so that `bazel test //...` passes
     # even if no toolchain is registered.
     tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
+
+# If true, detect toolchain installed on host machine
+bool_flag(
+    name = "autodetect_toolchain",
+    build_setting_default = False,
     visibility = ["//visibility:public"],
 )
 

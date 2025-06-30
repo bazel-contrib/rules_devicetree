@@ -1,10 +1,25 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("//devicetree/private:constants.bzl", "TOOLCHAIN_TOOLS")
 
-filegroup(name = "empty")
+# Test that $(<tool>) in genrule works.
+# buildifier: disable=no-effect
+[genrule(
+    name = "{}_version".format(tool),
+    outs = ["{}_version.txt".format(tool)],
+    cmd = "$({}) --version >> $@".format(tool.upper()),
+    # On Bazel 8.3 and above, use //devicetree:toolchain_type instead.
+    # See https://github.com/bazelbuild/bazel/issues/14009
+    toolchains = ["//devicetree:resolved_toolchain"],
+) for tool in TOOLCHAIN_TOOLS]
+
+filegroup(
+    name = "versions",
+    srcs = ["{}_version".format(tool) for tool in TOOLCHAIN_TOOLS],
+)
 
 build_test(
     name = "tests",
     targets = [
-        ":empty",
+        ":versions",
     ],
 )
