@@ -2,14 +2,7 @@
 """
 
 load("//devicetree/private:constants.bzl", "TOOLCHAIN_TOOLS")
-
-DevicetreeInfo = provider(
-    doc = "Information about how to invoke the tool executable.",
-    fields = {
-        name: "Executable of {} for the target platform.".format(name)
-        for name in TOOLCHAIN_TOOLS
-    },
-)
+load("//devicetree/private:devicetree_toolchain_info.bzl", "DevicetreeToolchainInfo")
 
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
@@ -22,7 +15,7 @@ def _devicetree_toolchain_impl(ctx):
     transitive_tool_files = []
     transitive_tool_runfiles = []
     template_variables = {}
-    devicetree_info_fields = {}
+    devicetree_toolchain_info_fields = {}
 
     for tool_name in TOOLCHAIN_TOOLS:
         target = getattr(ctx.attr, tool_name)
@@ -32,7 +25,7 @@ def _devicetree_toolchain_impl(ctx):
         transitive_tool_runfiles.append(target[DefaultInfo].default_runfiles)
         tool_path = _to_manifest_path(ctx, target.files.to_list()[0])
         template_variables[tool_name.upper()] = tool_path
-        devicetree_info_fields[tool_name] = getattr(ctx.executable, tool_name)
+        devicetree_toolchain_info_fields[tool_name] = getattr(ctx.executable, tool_name)
 
     tool_files = depset(transitive = transitive_tool_files)
 
@@ -47,12 +40,12 @@ def _devicetree_toolchain_impl(ctx):
         files = tool_files,
         runfiles = runfiles,
     )
-    devicetree_info = DevicetreeInfo(**devicetree_info_fields)
+    devicetree_toolchain_info = DevicetreeToolchainInfo(**devicetree_toolchain_info_fields)
 
     # Export all the providers inside our ToolchainInfo
     # so the resolved_toolchain rule can grab and re-export them.
     toolchain_info = platform_common.ToolchainInfo(
-        devicetree_info = devicetree_info,
+        devicetree_toolchain_info = devicetree_toolchain_info,
         template_variables = template_variables,
         default = default,
     )
