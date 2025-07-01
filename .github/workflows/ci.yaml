@@ -28,6 +28,10 @@ jobs:
           {"os": "macos-latest"},
           {"os": "windows-latest"}
         ]
+      bazel_test_command: |
+        sudo apt-get update &&
+        sudo apt-get install device-tree-compiler &&
+        bazel test //...
   pre-commit:
     runs-on: ubuntu-latest
     steps:
