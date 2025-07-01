@@ -38,9 +38,3 @@ bazel_dep(name = "gazelle", version = "0.35.0", dev_dependency = True, repo_name
 bazel_dep(name = "bazel_skylib_gazelle_plugin", version = "1.4.1", dev_dependency = True)
 bazel_dep(name = "aspect_bazel_lib", version = "1.32.1", dev_dependency = True)
 bazel_dep(name = "buildifier_prebuilt", version = "6.1.2", dev_dependency = True)
-
-devicetree = use_extension("//devicetree:extensions.bzl", "devicetree")
-devicetree.toolchain(name = "rules_devicetree_toolchains")
-use_repo(devicetree, "rules_devicetree_toolchains")
-
-register_toolchains("@rules_devicetree_toolchains//:all")
