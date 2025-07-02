@@ -66,6 +66,26 @@ sh_test(
     data = [":empty"],
 )
 
+# Checks that dtcopts is applied and overrides default_dtcopts
+dtb(
+    name = "extra_dtcopts",
+    srcs = ["empty.dts"],
+    dtcopts = [
+        "-a",
+        "2048",
+    ],
+)
+
+sh_test(
+    name = "extra_dtcopts_dtb_is_2048_bytes",
+    srcs = ["check_file_size.sh"],
+    args = [
+        "$(rootpath :extra_dtcopts)",
+        "2048",
+    ],
+    data = [":extra_dtcopts"],
+)
+
 test_suite(
     name = "tests",
     # all tests in this package

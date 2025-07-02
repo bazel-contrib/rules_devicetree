@@ -60,6 +60,7 @@ def _dtc(
         generate_symbols,
         out_attr,
         out_extension,
+        dtcopts,
         devicetree_toolchain_info):
     """Invokes dtc.
 
@@ -70,6 +71,7 @@ def _dtc(
         generate_symbols: whether to generate symbols
         out_attr: the `out` attribute of the rule
         out_extension: extension of output file without the dot
+        dtcopts: list of flags to dtc
         devicetree_toolchain_info: `DevicetreeToolchainInfo` of resolved toolchain
 
     Returns:
@@ -82,6 +84,7 @@ def _dtc(
     out = ctx.actions.declare_file(out_name)
     args = ctx.actions.args()
     args.add_all(devicetree_toolchain_info.default_dtcopts)
+    args.add_all(dtcopts)
 
     if generate_symbols:
         args.add("-@")
@@ -113,6 +116,7 @@ def _dtb_impl(ctx):
         generate_symbols = ctx.attr.generate_symbols,
         out_attr = ctx.attr.out,
         out_extension = "dtb",
+        dtcopts = ctx.attr.dtcopts,
         devicetree_toolchain_info = devicetree_toolchain_info,
     )
     return [
@@ -158,6 +162,7 @@ dtb = rule(
                 otherwise `name`.
             """,
         ),
+        "dtcopts": attr.string_list(doc = "List of flags to dtc."),
     },
     toolchains = [
         "//devicetree:toolchain_type",
