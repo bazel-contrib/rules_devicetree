@@ -20,6 +20,7 @@ jobs:
       folders: |
         [
           ".",
+          "e2e/custom_toolchain",
           "e2e/smoke"
         ]
       exclude: |

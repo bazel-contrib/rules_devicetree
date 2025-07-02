@@ -1,0 +1,44 @@
+# Copyright (C) 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@rules_devicetree//devicetree:toolchain.bzl", "devicetree_toolchain")
+
+devicetree_toolchain(
+    name = "custom_devicetree_toolchain",
+    dtc = "@host_tools_repo//:dtc",
+)
+
+toolchain(
+    name = "custom_toolchain",
+    toolchain = ":custom_devicetree_toolchain",
+    toolchain_type = "@rules_devicetree//devicetree:toolchain_type",
+)
+
+# Test that $(DTC) in genrule works.
+genrule(
+    name = "dtc_version",
+    outs = ["dtc_version.txt"],
+    cmd = "$(DTC) --version >> $@",
+    # On Bazel 8.3 and above, use //devicetree:toolchain_type instead.
+    # See https://github.com/bazelbuild/bazel/issues/14009
+    toolchains = ["@rules_devicetree//devicetree:resolved_toolchain"],
+)
+
+build_test(
+    name = "tests",
+    targets = [
+        ":dtc_version",
+    ],
+)
