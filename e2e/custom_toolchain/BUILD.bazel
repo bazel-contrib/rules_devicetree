@@ -15,9 +15,14 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@rules_devicetree//devicetree:dtb.bzl", "dtb")
 load("@rules_devicetree//devicetree:toolchain.bzl", "devicetree_toolchain")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 
 devicetree_toolchain(
     name = "custom_devicetree_toolchain",
+    default_dtcopts = [
+        "-a",
+        "1024",
+    ],
     dtc = "@host_tools_repo//:dtc",
 )
 
@@ -37,16 +42,32 @@ genrule(
     toolchains = ["@rules_devicetree//devicetree:resolved_toolchain"],
 )
 
+build_test(
+    name = "build_tests",
+    targets = [
+        # keep sorted
+        ":dtc_version",
+    ],
+)
+
+# Checks that default_dtcopts is applied
 dtb(
     name = "empty",
     srcs = ["empty.dts"],
 )
 
-build_test(
-    name = "tests",
-    targets = [
-        # keep sorted
-        ":dtc_version",
-        ":empty",
+sh_test(
+    name = "empty_dtb_is_1024_bytes",
+    srcs = ["check_file_size.sh"],
+    args = [
+        "$(rootpath :empty)",
+        "1024",
     ],
+    data = [":empty"],
+)
+
+test_suite(
+    name = "tests",
+    # all tests in this package
+    tests = None,
 )

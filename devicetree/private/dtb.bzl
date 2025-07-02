@@ -81,6 +81,7 @@ def _dtc(
 
     out = ctx.actions.declare_file(out_name)
     args = ctx.actions.args()
+    args.add_all(devicetree_toolchain_info.default_dtcopts)
 
     if generate_symbols:
         args.add("-@")

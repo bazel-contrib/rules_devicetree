@@ -1,3 +1,4 @@
+#!/bin/bash -e
 # Copyright (C) 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,29 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Test that a custom toolchain works."""
+if [ ! -n "${1}" ]; then
+    echo "ERROR: Missing file argument" >&2
+    exit 1
+fi
+file="${1}"
 
-module(name = "rules_dt_e2e_test_custom_toolchain")
+if [ ! -n "${2}" ]; then
+    echo "ERROR: Missing expected_size argument" >&2
+    exit 1
+fi
+expected_size="${2}"
 
-bazel_dep(name = "rules_devicetree")
-local_path_override(
-    module_name = "rules_devicetree",
-    path = "../..",
-)
+if [ ! -f "${file}" ]; then
+    echo "ERROR: File ${file} does not exist" >&2
+    exit 1
+fi
 
-bazel_dep(
-    name = "bazel_skylib",
-    version = "1.8.1",
-)
-bazel_dep(
-    name = "rules_shell",
-    version = "0.5.0",
-)
-
-host_tools_repo = use_repo_rule("//:host_tools_repo.bzl", "host_tools_repo")
-
-host_tools_repo(
-    name = "host_tools_repo",
-)
-
-register_toolchains("//:custom_toolchain")
+actual_size=$(wc -c < "${file}")
+if [ "${actual_size}" -ne "${2}" ]; then
+    echo "ERROR: Actual size of ${file} is ${actual_size}, expected ${expected_size}" >&2
+    exit 1
+fi

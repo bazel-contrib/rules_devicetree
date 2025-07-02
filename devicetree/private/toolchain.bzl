@@ -42,7 +42,10 @@ def _devicetree_toolchain_impl(ctx):
         files = tool_files,
         runfiles = runfiles,
     )
-    devicetree_toolchain_info = DevicetreeToolchainInfo(**devicetree_toolchain_info_fields)
+    devicetree_toolchain_info = DevicetreeToolchainInfo(
+        default_dtcopts = ctx.attr.default_dtcopts,
+        **devicetree_toolchain_info_fields
+    )
 
     # Export all the providers inside our ToolchainInfo
     # so the resolved_toolchain rule can grab and re-export them.
@@ -70,6 +73,8 @@ devicetree_toolchain = rule(
             executable = True,
         )
         for name, doc in TOOLCHAIN_TOOLS.items()
+    } | {
+        "default_dtcopts": attr.string_list(doc = "Default list of flags to dtc"),
     },
     doc = """Defines a devicetree toolchain.
 

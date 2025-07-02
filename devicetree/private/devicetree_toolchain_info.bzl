@@ -23,5 +23,7 @@ DevicetreeToolchainInfo = provider(
     fields = {
         name: "Executable of {} for the target platform.".format(name)
         for name in TOOLCHAIN_TOOLS
+    } | {
+        "default_dtcopts": "Default list of flags to dtc",
     },
 )
