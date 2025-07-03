@@ -168,3 +168,65 @@ dtb = rule(
         "//devicetree:toolchain_type",
     ],
 )
+
+def _dtbo_impl(ctx):
+    devicetree_toolchain_info = ctx.toolchains["//devicetree:toolchain_type"].devicetree_toolchain_info
+    split_sources = _split_sources(ctx.files.srcs, "dtso")
+
+    preprocessed = _preprocess(
+        ctx = ctx,
+        src = split_sources.src,
+        include_files = split_sources.include_files,
+    )
+    out = _dtc(
+        ctx = ctx,
+        src = preprocessed,
+        include_files = split_sources.include_files,
+        generate_symbols = False,
+        out_attr = ctx.attr.out,
+        out_extension = "dtbo",
+        dtcopts = ctx.attr.dtcopts,
+        devicetree_toolchain_info = devicetree_toolchain_info,
+    )
+    return [
+        DefaultInfo(files = depset([out])),
+    ]
+
+dtbo = rule(
+    doc = """Build a base devicetree blob overlay (DTBO).
+
+        Example:
+
+        ```starlark
+        dtbo(
+            name = "baz",
+            srcs = [
+                "baz.dtso",
+                "bar.dtsi",
+            ],
+        )
+        ```
+""",
+    implementation = _dtbo_impl,
+    attrs = {
+        "srcs": attr.label_list(
+            doc = """List of sources.
+
+            There must be exactly one `.dtso` file. Beside the `.dtso` file,
+            extra include files like `.dtsi` can be specified.
+        """,
+            allow_files = True,
+        ),
+        "out": attr.string(
+            doc = """Output file name. This should end with `.dtbo`.
+
+                Default is `name + ".dtbo"`, if name does not end with `.dtbo`;
+                otherwise `name`.
+            """,
+        ),
+        "dtcopts": attr.string_list(doc = "List of flags to dtc."),
+    },
+    toolchains = [
+        "//devicetree:toolchain_type",
+    ],
+)
