@@ -64,3 +64,33 @@ then: tag the repo and push the tag, for example
 ```
 
 Then watch the automation run on GitHub actions which creates the release.
+
+## Naming conventions
+
+### Devicetree
+
+Throughout the code base, "devicetree" should always be treated as one word.
+This aligns with the convention in
+[Linux documentation](https://docs.kernel.org/devicetree/index.html).
+
+When used in CamelCase names, the "t" should not be capitalized.
+
+When used in snake*case names, there should not be a `*` before the "t".
+
+Examples:
+
+- `Devicetree`
+- `devicetree`
+- `DevicetreeInfo`
+- `devicetree_info`
+
+Avoid abbreviations for "devicetree", e.g. `dt` or `DT`. Abbreviations are only
+allowed:
+
+- in existing executable names, e.g. `dtc` or `fdtoverlay`
+- in file types like `.dtb`, `.dtbo`, `.dts`, `.dtso`
+- in words like `dtb` and `dtbo`.
+
+### dtcopts
+
+Use `dtcopts`, not `dtc_opts`. This is similar to `copts` and `javaopts`.
