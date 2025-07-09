@@ -35,3 +35,9 @@ bzl_library(
         ":devicetree_toolchain_info",
     ],
 )
+
+filegroup(
+    name = "all_bzl_files",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//devicetree/tests:__subpackages__"],
+)
