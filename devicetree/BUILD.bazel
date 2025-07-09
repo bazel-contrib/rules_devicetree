@@ -7,6 +7,7 @@ exports_files(
     [
         # keep sorted
         "dtb.bzl",
+        "dtb_composite.bzl",
         "dtbo.bzl",
         "toolchain.bzl",
     ],
@@ -41,6 +42,13 @@ bzl_library(
     srcs = ["dtb.bzl"],
     visibility = ["//visibility:public"],
     deps = ["//devicetree/private:dtb"],
+)
+
+bzl_library(
+    name = "dtb_composite",
+    srcs = ["dtb_composite.bzl"],
+    visibility = ["//visibility:public"],
+    deps = ["//devicetree/private:dtb_composite"],
 )
 
 bzl_library(

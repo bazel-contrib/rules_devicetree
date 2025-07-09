@@ -38,6 +38,15 @@ bzl_library(
 )
 
 bzl_library(
+    name = "dtb_composite",
+    srcs = ["dtb_composite.bzl"],
+    visibility = ["//devicetree:__subpackages__"],
+    deps = [
+        ":utils",
+    ],
+)
+
+bzl_library(
     name = "resolved_toolchain",
     srcs = ["resolved_toolchain.bzl"],
     visibility = ["//devicetree:__subpackages__"],

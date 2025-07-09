@@ -8,6 +8,11 @@ stardoc_with_diff_test(
 )
 
 stardoc_with_diff_test(
+    name = "dtb_composite",
+    bzl_library_target = "//devicetree:dtb_composite",
+)
+
+stardoc_with_diff_test(
     name = "dtbo",
     bzl_library_target = "//devicetree:dtbo",
 )
