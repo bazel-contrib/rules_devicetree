@@ -73,9 +73,9 @@ Throughout the code base, "devicetree" should always be treated as one word.
 This aligns with the convention in
 [Linux documentation](https://docs.kernel.org/devicetree/index.html).
 
-When used in CamelCase names, the "t" should not be capitalized.
+When used in `CamelCase` names, the "t" should not be capitalized.
 
-When used in snake*case names, there should not be a `*` before the "t".
+When used in `snake_case` names, there should not be a `_` before the "t".
 
 Examples:
 
