@@ -24,6 +24,7 @@ devicetree_toolchain(
         "1024",
     ],
     dtc = "@host_tools_repo//:dtc",
+    preprocess = False,
 )
 
 toolchain(
