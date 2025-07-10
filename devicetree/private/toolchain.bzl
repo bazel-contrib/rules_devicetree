@@ -45,6 +45,7 @@ def _devicetree_toolchain_impl(ctx):
         runfiles = runfiles,
     )
     devicetree_toolchain_info = DevicetreeToolchainInfo(
+        label = ctx.label,
         default_dtcopts = ctx.attr.default_dtcopts,
         preprocess = getattr(ctx.attr, "preprocess", None),
         **devicetree_toolchain_info_fields

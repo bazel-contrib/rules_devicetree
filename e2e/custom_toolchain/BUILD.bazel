@@ -14,7 +14,9 @@
 
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@rules_devicetree//devicetree:dtb.bzl", "dtb")
+load("@rules_devicetree//devicetree:dtb_composite.bzl", "dtb_composite")
 load("@rules_devicetree//devicetree:toolchain.bzl", "devicetree_toolchain")
+load("@rules_devicetree_test_utils//:fail_analysis_test.bzl", "fail_analysis_test")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 
 devicetree_toolchain(
@@ -85,6 +87,20 @@ sh_test(
         "2048",
     ],
     data = [":extra_dtcopts"],
+)
+
+dtb_composite(
+    name = "composite",
+    base = ":empty",
+    tags = ["manual"],
+)
+
+fail_analysis_test(
+    name = "no_fdtoverlay_should_trigger_a_failure_on_dtb_composite",
+    error_message = "The resolved toolchain, {}, does not have fdtoverlay.".format(
+        package_relative_label(":custom_devicetree_toolchain"),
+    ),
+    target_under_test = ":composite",
 )
 
 test_suite(

@@ -24,6 +24,25 @@ def _maybe_add_suffix(s, suffix):
     else:
         return s + suffix
 
+def _check_tool_exists(devicetree_toolchain_info, tool_name):
+    """Checks if tool_name exists in devicetree_toolchain_info. If not, fail().
+
+    Args:
+        devicetree_toolchain_info: `DevicetreeToolchainInfo` of resolved toolchain
+        tool_name: name of the tool, e.g. `"dtc"`
+    """
+    if not getattr(devicetree_toolchain_info, tool_name, None):
+        fail("""The resolved toolchain, {toolchain_label}, does not have {tool_name}.
+
+    - For a custom toolchain, ensure that the {tool_name} attribute is set in
+      {toolchain_label}.
+    - For the autodetected toolchain, ensure that {tool_name} is in PATH.
+""".format(
+            toolchain_label = devicetree_toolchain_info.label,
+            tool_name = tool_name,
+        ))
+
 utils = struct(
     maybe_add_suffix = _maybe_add_suffix,
+    check_tool_exists = _check_tool_exists,
 )

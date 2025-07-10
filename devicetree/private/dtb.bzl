@@ -145,6 +145,8 @@ def _dtc(
     if not out_name.endswith("." + out_extension):
         fail("out does not end with `.{}`".format(out_extension))
 
+    utils.check_tool_exists(devicetree_toolchain_info, "dtc")
+
     out = ctx.actions.declare_file(out_name)
     args = ctx.actions.args()
     args.add_all(devicetree_toolchain_info.default_dtcopts)

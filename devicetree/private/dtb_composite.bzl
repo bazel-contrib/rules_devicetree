@@ -21,6 +21,8 @@ visibility("//devicetree/...")
 def _dtb_composite_impl(ctx):
     devicetree_toolchain_info = ctx.toolchains["//devicetree:toolchain_type"].devicetree_toolchain_info
 
+    utils.check_tool_exists(devicetree_toolchain_info, "fdtoverlay")
+
     out_name = ctx.attr.out or utils.maybe_add_suffix(ctx.attr.name, ".dtb")
     out = ctx.actions.declare_file(out_name)
 

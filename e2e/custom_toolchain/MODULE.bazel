@@ -17,11 +17,7 @@
 module(name = "rules_dt_e2e_test_custom_toolchain")
 
 bazel_dep(name = "rules_devicetree")
-local_path_override(
-    module_name = "rules_devicetree",
-    path = "../..",
-)
-
+bazel_dep(name = "rules_devicetree_test_utils")
 bazel_dep(
     name = "bazel_skylib",
     version = "1.8.1",
@@ -29,6 +25,16 @@ bazel_dep(
 bazel_dep(
     name = "rules_shell",
     version = "0.5.0",
+)
+
+local_path_override(
+    module_name = "rules_devicetree",
+    path = "../..",
+)
+
+local_path_override(
+    module_name = "rules_devicetree_test_utils",
+    path = "../test_utils",
 )
 
 host_tools_repo = use_repo_rule("//:host_tools_repo.bzl", "host_tools_repo")
