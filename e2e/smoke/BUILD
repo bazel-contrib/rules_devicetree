@@ -37,10 +37,17 @@ dtb_composite(
     overlays = [":empty_overlay"],
 )
 
+# Test that #define works.
+dtb(
+    name = "define",
+    srcs = ["define.dts"],
+)
+
 build_test(
     name = "tests",
     targets = [
         # keep sorted
+        ":define",
         ":dtc_version",
         ":empty",
         ":empty_composite",

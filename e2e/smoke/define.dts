@@ -1,0 +1,6 @@
+#define HEADER /dts-v1/
+
+HEADER;
+
+/ {
+};

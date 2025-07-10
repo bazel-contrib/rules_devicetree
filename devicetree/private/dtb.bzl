@@ -14,6 +14,12 @@
 
 """Builds device tree blobs."""
 
+load("@bazel_skylib//lib:paths.bzl", "paths")
+load(
+    "@rules_cc//cc:find_cc_toolchain.bzl",
+    "find_cc_toolchain",
+    "use_cc_toolchain",
+)
 load(":base_dtb_info.bzl", "BaseDtbInfo")
 load(":utils.bzl", "utils")
 
@@ -48,10 +54,68 @@ def _split_sources(srcs, src_extension):
         include_files = include_files,
     )
 
-# buildifier: disable=unused-variable
-def _preprocess(ctx, src, include_files):
-    # TODO(#7): Support preprocess directives
-    return src
+def _preprocess(
+        ctx,
+        support_preprocess,
+        src,
+        # buildifier: disable=unused-variable
+        include_files,
+        out_attr,
+        out_extension):
+    # Don't preprocess if:
+    # - It is disabled in devicetree_toolchain()
+    # - For the autodetected devicetree toolchain, no C toolchain is found
+    if support_preprocess == False:
+        return src
+
+    cc_toolchain = find_cc_toolchain(ctx)
+    if support_preprocess == None and not cc_toolchain:
+        return src
+
+    if not cc_toolchain:
+        fail("DT preprocessing is enabled, but no CC toolchain is found. Please register a CC toolchain.")
+
+    src_extension = paths.split_extension(src.path)[1]  # ".dts" or ".dtso"
+    if out_attr:
+        out_name = paths.replace_extension(out_attr, ".tmp" + src_extension)
+    elif ctx.label.name.endswith("." + out_extension):
+        out_name = ctx.label.name.removesuffix("." + out_extension) + ".tmp" + src_extension
+    else:
+        out_name = ctx.label.name + ".tmp" + src_extension
+
+    out = ctx.actions.declare_file(out_name)
+
+    args = ctx.actions.args()
+
+    # Only run the preprocessor
+    args.add("-E")
+
+    # Handle include dirs
+    args.add("-nostdinc")
+    # TODO(#7): Add include dirs here
+
+    # Handle defines
+    args.add_all(["-undef", "-D__DTS__"])
+
+    # Treat input files as "assembler-with-cpp"
+    args.add_all(["-x", "assembler-with-cpp"])
+
+    # Output file
+    args.add_all(["-o", out])
+
+    # Input
+    args.add(src)
+
+    ctx.actions.run(
+        executable = cc_toolchain.preprocessor_executable,
+        inputs = [src],
+        tools = cc_toolchain.all_files,
+        outputs = [out],
+        progress_message = "Preprocessing %{label}",
+        arguments = [args],
+    )
+
+    return out
 
 def _dtc(
         ctx,
@@ -106,8 +170,11 @@ def _dtb_impl(ctx):
 
     preprocessed = _preprocess(
         ctx = ctx,
+        support_preprocess = devicetree_toolchain_info.preprocess,
         src = split_sources.src,
         include_files = split_sources.include_files,
+        out_attr = ctx.attr.out,
+        out_extension = "dtb",
     )
     out = _dtc(
         ctx = ctx,
@@ -166,7 +233,8 @@ dtb = rule(
     },
     toolchains = [
         "//devicetree:toolchain_type",
-    ],
+    ] + use_cc_toolchain(mandatory = False),
+    fragments = ["cpp"],
 )
 
 def _dtbo_impl(ctx):
@@ -175,8 +243,11 @@ def _dtbo_impl(ctx):
 
     preprocessed = _preprocess(
         ctx = ctx,
+        support_preprocess = devicetree_toolchain_info.preprocess,
         src = split_sources.src,
         include_files = split_sources.include_files,
+        out_attr = ctx.attr.out,
+        out_extension = "dtb",
     )
     out = _dtc(
         ctx = ctx,
@@ -228,5 +299,6 @@ dtbo = rule(
     },
     toolchains = [
         "//devicetree:toolchain_type",
-    ],
+    ] + use_cc_toolchain(mandatory = False),
+    fragments = ["cpp"],
 )

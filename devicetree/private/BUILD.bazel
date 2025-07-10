@@ -34,6 +34,7 @@ bzl_library(
         ":base_dtb_info",
         ":utils",
         "@bazel_skylib//lib:paths",
+        "@rules_cc//cc:find_cc_toolchain_bzl",
     ],
 )
 
