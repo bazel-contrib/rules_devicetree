@@ -39,7 +39,6 @@ bzl_library(
     srcs = ["toolchain.bzl"],
     visibility = ["//visibility:public"],
     deps = [
-        "//devicetree/private:constants",
-        "//devicetree/private:devicetree_toolchain_info",
+        "//devicetree/private:toolchain",
     ],
 )

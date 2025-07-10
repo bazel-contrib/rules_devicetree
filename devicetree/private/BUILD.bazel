@@ -25,3 +25,13 @@ bzl_library(
     srcs = ["resolved_toolchain.bzl"],
     visibility = ["//devicetree:__subpackages__"],
 )
+
+bzl_library(
+    name = "toolchain",
+    srcs = ["toolchain.bzl"],
+    visibility = ["//devicetree:__subpackages__"],
+    deps = [
+        ":constants",
+        ":devicetree_toolchain_info",
+    ],
+)

@@ -4,6 +4,8 @@
 load("//devicetree/private:constants.bzl", "TOOLCHAIN_TOOLS")
 load("//devicetree/private:devicetree_toolchain_info.bzl", "DevicetreeToolchainInfo")
 
+visibility("//devicetree/...")
+
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
     if file.short_path.startswith("../"):
