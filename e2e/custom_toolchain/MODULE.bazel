@@ -24,7 +24,7 @@ local_path_override(
 
 bazel_dep(
     name = "bazel_skylib",
-    version = "1.7.1",
+    version = "1.8.1",
 )
 
 host_tools_repo = use_repo_rule("//:host_tools_repo.bzl", "host_tools_repo")
