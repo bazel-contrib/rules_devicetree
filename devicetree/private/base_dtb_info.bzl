@@ -12,22 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Information about how to invoke the tool executable."""
-
-load("//devicetree/private:constants.bzl", "TOOLCHAIN_TOOLS")
+"""Information of a base dtb() target."""
 
 visibility("//devicetree/...")
 
-DevicetreeToolchainInfo = provider(
-    doc = "Information about how to invoke the tool executable.",
+BaseDtbInfo = provider(
+    doc = "Information of a base dtb() target.",
     fields = {
-        name: "Executable of {} for the target platform.".format(name)
-        for name in TOOLCHAIN_TOOLS
-    } | {
-        "label": "Label to the toolchain",
-        "default_dtcopts": "Default list of flags to dtc",
-        "preprocess": """Whether source files are preprocessed.
-
-            None means it is dependent on whether the C toolchain is available.""",
+        "generate_symbols": "Whether symbols are generated",
     },
 )

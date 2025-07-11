@@ -3,6 +3,10 @@ Add a basic smoke-test target below.
 """
 
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@rules_devicetree//devicetree:dtb.bzl", "dtb")
+load("@rules_devicetree//devicetree:dtb_composite.bzl", "dtb_composite")
+load("@rules_devicetree//devicetree:dtbo.bzl", "dtbo")
+load("@rules_devicetree_test_utils//:fail_analysis_test.bzl", "fail_analysis_test")
 
 # Test that $(DTC) in genrule works.
 genrule(
@@ -14,9 +18,74 @@ genrule(
     toolchains = ["@rules_devicetree//devicetree:resolved_toolchain"],
 )
 
+# Test that an empty dts file can be built.
+dtb(
+    name = "empty",
+    srcs = ["empty.dts"],
+    generate_symbols = True,
+)
+
+# Test that an empty dtso file can be built.
+dtbo(
+    name = "empty_overlay",
+    srcs = ["empty.dtso"],
+)
+
+# Test that the empty dtbo can be applied on the empty base dtb
+dtb_composite(
+    name = "empty_composite",
+    base = ":empty",
+    overlays = [":empty_overlay"],
+)
+
+# Test that #define works.
+dtb(
+    name = "define",
+    srcs = ["define.dts"],
+)
+
+# Test that overlays can't be applied on base without symbols.
+
+dtb(
+    name = "base_without_symbols",
+    srcs = ["empty.dts"],
+    generate_symbols = False,
+)
+
+dtbo(
+    name = "overlay_on_base_without_symbols",
+    srcs = ["empty.dtso"],
+)
+
+dtb_composite(
+    name = "composite_on_base_without_symbols",
+    base = ":base_without_symbols",
+    overlays = [":overlay_on_base_without_symbols"],
+    tags = ["manual"],
+)
+
+fail_analysis_test(
+    name = "overlay_on_base_without_symbols_should_fail",
+    error_message = "{} does not have generate_symbols = True, so overlays can't be applied.".format(
+        package_relative_label(":base_without_symbols"),
+    ),
+    target_under_test = ":composite_on_base_without_symbols",
+)
+
 build_test(
-    name = "tests",
+    name = "build_tests",
     targets = [
+        # keep sorted
+        ":define",
         ":dtc_version",
+        ":empty",
+        ":empty_composite",
+        ":empty_overlay",
     ],
+)
+
+test_suite(
+    name = "tests",
+    # all tests in this package
+    tests = None,
 )
