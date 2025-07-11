@@ -3,6 +3,9 @@ Add a basic smoke-test target below.
 """
 
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@rules_devicetree//devicetree:dtb.bzl", "dtb")
+load("@rules_devicetree//devicetree:dtb_composite.bzl", "dtb_composite")
+load("@rules_devicetree//devicetree:dtbo.bzl", "dtbo")
 
 # Test that $(DTC) in genrule works.
 genrule(
@@ -14,9 +17,33 @@ genrule(
     toolchains = ["@rules_devicetree//devicetree:resolved_toolchain"],
 )
 
+# Test that an empty dts file can be built.
+dtb(
+    name = "empty",
+    srcs = ["empty.dts"],
+    generate_symbols = True,
+)
+
+# Test that an empty dtso file can be built.
+dtbo(
+    name = "empty_overlay",
+    srcs = ["empty.dtso"],
+)
+
+# Test that the empty dtbo can be applied on the empty base dtb
+dtb_composite(
+    name = "empty_composite",
+    base = ":empty",
+    overlays = [":empty_overlay"],
+)
+
 build_test(
     name = "tests",
     targets = [
+        # keep sorted
         ":dtc_version",
+        ":empty",
+        ":empty_composite",
+        ":empty_overlay",
     ],
 )

@@ -12,29 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Test that a custom toolchain works."""
+"""Information of a base dtb() target."""
 
-module(name = "rules_dt_e2e_test_custom_toolchain")
+visibility("//devicetree/...")
 
-bazel_dep(name = "rules_devicetree")
-local_path_override(
-    module_name = "rules_devicetree",
-    path = "../..",
+BaseDtbInfo = provider(
+    doc = "Information of a base dtb() target.",
+    fields = {
+        "generate_symbols": "Whether symbols are generated",
+    },
 )
-
-bazel_dep(
-    name = "bazel_skylib",
-    version = "1.8.1",
-)
-bazel_dep(
-    name = "rules_shell",
-    version = "0.5.0",
-)
-
-host_tools_repo = use_repo_rule("//:host_tools_repo.bzl", "host_tools_repo")
-
-host_tools_repo(
-    name = "host_tools_repo",
-)
-
-register_toolchains("//:custom_toolchain")

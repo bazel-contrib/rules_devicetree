@@ -13,10 +13,16 @@
 # limitations under the License.
 
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@rules_devicetree//devicetree:dtb.bzl", "dtb")
 load("@rules_devicetree//devicetree:toolchain.bzl", "devicetree_toolchain")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 
 devicetree_toolchain(
     name = "custom_devicetree_toolchain",
+    default_dtcopts = [
+        "-a",
+        "1024",
+    ],
     dtc = "@host_tools_repo//:dtc",
 )
 
@@ -37,8 +43,51 @@ genrule(
 )
 
 build_test(
-    name = "tests",
+    name = "build_tests",
     targets = [
+        # keep sorted
         ":dtc_version",
     ],
+)
+
+# Checks that default_dtcopts is applied
+dtb(
+    name = "empty",
+    srcs = ["empty.dts"],
+)
+
+sh_test(
+    name = "empty_dtb_is_1024_bytes",
+    srcs = ["check_file_size.sh"],
+    args = [
+        "$(rootpath :empty)",
+        "1024",
+    ],
+    data = [":empty"],
+)
+
+# Checks that dtcopts is applied and overrides default_dtcopts
+dtb(
+    name = "extra_dtcopts",
+    srcs = ["empty.dts"],
+    dtcopts = [
+        "-a",
+        "2048",
+    ],
+)
+
+sh_test(
+    name = "extra_dtcopts_dtb_is_2048_bytes",
+    srcs = ["check_file_size.sh"],
+    args = [
+        "$(rootpath :extra_dtcopts)",
+        "2048",
+    ],
+    data = [":extra_dtcopts"],
+)
+
+test_suite(
+    name = "tests",
+    # all tests in this package
+    tests = None,
 )
