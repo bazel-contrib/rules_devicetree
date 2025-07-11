@@ -23,5 +23,10 @@ DevicetreeToolchainInfo = provider(
     fields = {
         name: "Executable of {} for the target platform.".format(name)
         for name in TOOLCHAIN_TOOLS
+    } | {
+        "default_dtcopts": "Default list of flags to dtc",
+        "preprocess": """Whether source files are preprocessed.
+
+            None means it is dependent on whether the C toolchain is available.""",
     },
 )
