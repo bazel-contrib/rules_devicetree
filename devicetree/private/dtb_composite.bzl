@@ -14,6 +14,7 @@
 
 """Builds a composite dtb by applying overlays on a base dtb."""
 
+load(":base_dtb_info.bzl", "BaseDtbInfo")
 load(":utils.bzl", "utils")
 
 visibility("//devicetree/...")
@@ -22,6 +23,16 @@ def _dtb_composite_impl(ctx):
     devicetree_toolchain_info = ctx.toolchains["//devicetree:toolchain_type"].devicetree_toolchain_info
 
     utils.check_tool_exists(devicetree_toolchain_info, "fdtoverlay")
+
+    # If the base dtb comes from a dtb() rule, do an early check that generate_symbols = True.
+    # This does not aim to catch all errors; for example, if the dtb() target was wrapped in
+    # a filegroup(), BaseDtbInfo is lost, so we can't detect errors until `dtc` is actually
+    # executed.
+    if BaseDtbInfo in ctx.attr.base:
+        if not ctx.attr.base[BaseDtbInfo].generate_symbols:
+            fail("{} does not have generate_symbols = True, so overlays can't be applied.".format(
+                ctx.attr.base.label,
+            ))
 
     out_name = ctx.attr.out or utils.maybe_add_suffix(ctx.attr.name, ".dtb")
     out = ctx.actions.declare_file(out_name)

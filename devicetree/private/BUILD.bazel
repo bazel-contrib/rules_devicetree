@@ -43,6 +43,7 @@ bzl_library(
     srcs = ["dtb_composite.bzl"],
     visibility = ["//devicetree:__subpackages__"],
     deps = [
+        ":base_dtb_info",
         ":utils",
     ],
 )
