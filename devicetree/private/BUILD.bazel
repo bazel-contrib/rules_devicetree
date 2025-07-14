@@ -20,6 +20,19 @@ bzl_library(
 )
 
 bzl_library(
+    name = "devicetree_library",
+    srcs = ["devicetree_library.bzl"],
+    visibility = ["//devicetree:__subpackages__"],
+    deps = [":devicetree_library_info"],
+)
+
+bzl_library(
+    name = "devicetree_library_info",
+    srcs = ["devicetree_library_info.bzl"],
+    visibility = ["//devicetree:__subpackages__"],
+)
+
+bzl_library(
     name = "devicetree_toolchain_info",
     srcs = ["devicetree_toolchain_info.bzl"],
     visibility = ["//devicetree:__subpackages__"],
@@ -32,6 +45,7 @@ bzl_library(
     visibility = ["//devicetree:__subpackages__"],
     deps = [
         ":base_dtb_info",
+        ":devicetree_library_info",
         ":utils",
         "@bazel_skylib//lib:paths",
         "@rules_cc//cc:find_cc_toolchain_bzl",

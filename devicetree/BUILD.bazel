@@ -6,6 +6,7 @@ load("//devicetree/private:resolved_toolchain.bzl", "resolved_toolchain")
 exports_files(
     [
         # keep sorted
+        "devicetree_library.bzl",
         "dtb.bzl",
         "dtb_composite.bzl",
         "dtbo.bzl",
@@ -35,6 +36,13 @@ bool_flag(
     name = "autodetect_toolchain",
     build_setting_default = False,
     visibility = ["//visibility:public"],
+)
+
+bzl_library(
+    name = "devicetree_library",
+    srcs = ["devicetree_library.bzl"],
+    visibility = ["//visibility:public"],
+    deps = ["//devicetree/private:devicetree_library"],
 )
 
 bzl_library(

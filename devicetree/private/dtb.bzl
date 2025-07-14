@@ -21,6 +21,7 @@ load(
     "use_cc_toolchain",
 )
 load(":base_dtb_info.bzl", "BaseDtbInfo")
+load(":devicetree_library_info.bzl", "DevicetreeLibraryInfo")
 load(":utils.bzl", "utils")
 
 visibility("//devicetree/...")
@@ -61,7 +62,8 @@ def _preprocess(
         # buildifier: disable=unused-variable
         include_files,
         out_attr,
-        out_extension):
+        out_extension,
+        deps):
     # Don't preprocess if:
     # - It is disabled in devicetree_toolchain()
     # - For the autodetected devicetree toolchain, no C toolchain is found
@@ -92,7 +94,11 @@ def _preprocess(
 
     # Handle include dirs
     args.add("-nostdinc")
-    # TODO(#7): Add include dirs here
+    args.add_all(
+        depset(transitive = [target[DevicetreeLibraryInfo].includes for target in deps]),
+        before_each = "-I",
+        expand_directories = False,
+    )
 
     # Handle defines
     args.add_all(["-undef", "-D__DTS__"])
@@ -108,7 +114,13 @@ def _preprocess(
 
     ctx.actions.run(
         executable = cc_toolchain.preprocessor_executable,
-        inputs = [src],
+        inputs = depset(
+            [src] + include_files,
+            transitive = [
+                target[DevicetreeLibraryInfo].hdrs
+                for target in deps
+            ],
+        ),
         tools = cc_toolchain.all_files,
         outputs = [out],
         progress_message = "Preprocessing %{label}",
@@ -125,7 +137,8 @@ def _dtc(
         out_attr,
         out_extension,
         dtcopts,
-        devicetree_toolchain_info):
+        devicetree_toolchain_info,
+        deps):
     """Invokes dtc.
 
     Args:
@@ -137,6 +150,7 @@ def _dtc(
         out_extension: extension of output file without the dot
         dtcopts: list of flags to dtc
         devicetree_toolchain_info: `DevicetreeToolchainInfo` of resolved toolchain
+        deps: list of Targets in deps
 
     Returns:
         the output file
@@ -152,6 +166,12 @@ def _dtc(
     args.add_all(devicetree_toolchain_info.default_dtcopts)
     args.add_all(dtcopts)
 
+    args.add_all(
+        depset(transitive = [target[DevicetreeLibraryInfo].includes for target in deps]),
+        before_each = "-i",
+        expand_directories = False,
+    )
+
     if generate_symbols:
         args.add("-@")
     args.add("-o", out)
@@ -159,7 +179,13 @@ def _dtc(
     ctx.actions.run(
         executable = devicetree_toolchain_info.dtc,
         arguments = [args],
-        inputs = [src] + include_files,
+        inputs = depset(
+            [src] + include_files,
+            transitive = [
+                target[DevicetreeLibraryInfo].hdrs
+                for target in deps
+            ],
+        ),
         outputs = [out],
         mnemonic = "Dtc",
         progress_message = "Building {} %{{label}}".format(out_extension.upper()),
@@ -177,6 +203,7 @@ def _dtb_impl(ctx):
         include_files = split_sources.include_files,
         out_attr = ctx.attr.out,
         out_extension = "dtb",
+        deps = ctx.attr.deps,
     )
     out = _dtc(
         ctx = ctx,
@@ -187,6 +214,7 @@ def _dtb_impl(ctx):
         out_extension = "dtb",
         dtcopts = ctx.attr.dtcopts,
         devicetree_toolchain_info = devicetree_toolchain_info,
+        deps = ctx.attr.deps,
     )
     return [
         DefaultInfo(files = depset([out])),
@@ -232,6 +260,15 @@ dtb = rule(
             """,
         ),
         "dtcopts": attr.string_list(doc = "List of flags to dtc."),
+        "deps": attr.label_list(
+            doc = """List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h inclusion.
+
+                Order matters. See
+                [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes)
+                for details about ordering of include directories.
+            """,
+            providers = [DevicetreeLibraryInfo],
+        ),
     },
     toolchains = [
         "//devicetree:toolchain_type",
@@ -250,6 +287,7 @@ def _dtbo_impl(ctx):
         include_files = split_sources.include_files,
         out_attr = ctx.attr.out,
         out_extension = "dtb",
+        deps = ctx.attr.deps,
     )
     out = _dtc(
         ctx = ctx,
@@ -260,6 +298,7 @@ def _dtbo_impl(ctx):
         out_extension = "dtbo",
         dtcopts = ctx.attr.dtcopts,
         devicetree_toolchain_info = devicetree_toolchain_info,
+        deps = ctx.attr.deps,
     )
     return [
         DefaultInfo(files = depset([out])),
@@ -298,6 +337,15 @@ dtbo = rule(
             """,
         ),
         "dtcopts": attr.string_list(doc = "List of flags to dtc."),
+        "deps": attr.label_list(
+            doc = """List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h inclusion.
+
+                Order matters. See
+                [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes)
+                for details about ordering of include directories.
+            """,
+            providers = [DevicetreeLibraryInfo],
+        ),
     },
     toolchains = [
         "//devicetree:toolchain_type",
