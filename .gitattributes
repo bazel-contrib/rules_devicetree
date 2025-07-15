@@ -1,5 +1,5 @@
 # In code review, collapse generated files
-docs/*.md linguist-generated=true
+docs/api/*.md linguist-generated=true
 
 #################################
 # Configuration for 'git archive'

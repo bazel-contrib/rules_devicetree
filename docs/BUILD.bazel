@@ -3,27 +3,27 @@
 load("@aspect_bazel_lib//lib:docs.bzl", "stardoc_with_diff_test", "update_docs")
 
 stardoc_with_diff_test(
-    name = "devicetree_library",
+    name = "api/devicetree_library",
     bzl_library_target = "//devicetree:devicetree_library",
 )
 
 stardoc_with_diff_test(
-    name = "dtb",
+    name = "api/dtb",
     bzl_library_target = "//devicetree:dtb",
 )
 
 stardoc_with_diff_test(
-    name = "dtb_composite",
+    name = "api/dtb_composite",
     bzl_library_target = "//devicetree:dtb_composite",
 )
 
 stardoc_with_diff_test(
-    name = "dtbo",
+    name = "api/dtbo",
     bzl_library_target = "//devicetree:dtbo",
 )
 
 stardoc_with_diff_test(
-    name = "toolchain",
+    name = "api/toolchain",
     bzl_library_target = "//devicetree:toolchain",
 )
 

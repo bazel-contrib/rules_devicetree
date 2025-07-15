@@ -25,7 +25,7 @@ repos:
       - id: end-of-file-fixer
         exclude: |
           (?x)^(
-            docs/
+            docs/api/
           )
       - id: trailing-whitespace
   # Check formatting and lint for starlark code
