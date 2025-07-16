@@ -241,6 +241,13 @@ dtb = rule(
             doc = """List of sources.
 
             There must be exactly one `.dts` file.
+
+            `.dtsi` and `.h` files in the same directory or subdirectories may
+            also be specified if you do not need extra search directories
+            (`-i` option to `dtc`). If you do need to pair search
+            directories with `.dtsi` and `.h` files, use
+            [`devicetree_library()`](devicetree_library.md#devicetree_library)
+            and add them to [`deps`](#dtb-deps).
         """,
             allow_files = True,
         ),
@@ -318,6 +325,13 @@ dtbo = rule(
             doc = """List of sources.
 
             There must be exactly one `.dtso` file.
+
+            `.dtsi` and `.h` files in the same directory or subdirectories may
+            also be specified if you do not need extra search directories
+            (`-i` option to `dtc`). If you do need to pair search
+            directories with `.dtsi` and `.h` files, use
+            [`devicetree_library()`](devicetree_library.md#devicetree_library)
+            and add them to [`deps`](#dtb-deps).
         """,
             allow_files = True,
         ),

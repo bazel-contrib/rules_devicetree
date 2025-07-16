@@ -50,8 +50,34 @@ For a concrete example, see
 
 ### Including `.dtsi` and `.h`
 
-Use a [`devicetree_library()`](api/devicetree_library.md#devicetree_library) to
-specify a library of `.dtsi` and `.h` files. Example:
+#### Including `.dtsi` and `.h` in the same directory
+
+For `.dtsi` and `.h` in the same directory as the `.dts` file, you may specify
+them in `dtb(srcs=)` attribute along with the `.dts` file. Example:
+
+```starlark
+dtb(
+    name = "foo",
+    srcs = [
+        "foo.dts",
+        "foo.dtsi",
+    ],
+)
+```
+
+```
+// In foo.dts:
+/include/ "foo.dtsi"
+```
+
+For a concrete example, see
+[include_files_in_srcs_test](../e2e/smoke/include_test/include_files_in_srcs_test/BUILD.bazel).
+
+#### Including `.dtsi` and `.h` in a different directory (`dtc -i` option)
+
+If the `.dtsi` and `.h` files are in a different directory, and/or you need to
+specify `-i` option to `dtc`, use a
+[`devicetree_library()`](api/devicetree_library.md#devicetree_library). Example:
 
 ```
 load("@rules_devicetree//devicetree:devicetree_library.bzl", "devicetree_library")
