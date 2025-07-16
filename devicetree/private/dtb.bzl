@@ -231,10 +231,7 @@ dtb = rule(
         ```starlark
         dtb(
             name = "foo",
-            srcs = [
-                "foo.dts",
-                "bar.dtsi",
-            ],
+            srcs = ["foo.dts"],
         )
         ```
 """,
@@ -243,8 +240,7 @@ dtb = rule(
         "srcs": attr.label_list(
             doc = """List of sources.
 
-            There must be exactly one `.dts` file. Beside the `.dts` file,
-            extra include files like `.dtsi` can be specified.
+            There must be exactly one `.dts` file.
         """,
             allow_files = True,
         ),
@@ -312,10 +308,7 @@ dtbo = rule(
         ```starlark
         dtbo(
             name = "baz",
-            srcs = [
-                "baz.dtso",
-                "bar.dtsi",
-            ],
+            srcs = ["baz.dtso"],
         )
         ```
 """,
@@ -324,8 +317,7 @@ dtbo = rule(
         "srcs": attr.label_list(
             doc = """List of sources.
 
-            There must be exactly one `.dtso` file. Beside the `.dtso` file,
-            extra include files like `.dtsi` can be specified.
+            There must be exactly one `.dtso` file.
         """,
             allow_files = True,
         ),

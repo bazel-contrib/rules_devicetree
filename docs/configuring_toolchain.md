@@ -1,5 +1,8 @@
 # Configuring toolchains
 
+After you [installed `rules_devicetree`](installation.md), you need to configure
+a devicetree toolchain before [building devicetrees](building.md).
+
 ## Configuring your own devicetree toolchain (recommended)
 
 Invoke the `devicetree_toolchain()` rule to declare a devicetree toolchain. You
@@ -58,6 +61,14 @@ For a concrete example, see
 and
 [e2e/custom_toolchain/MODULE.bazel](../e2e/custom_toolchain/MODULE.bazel).
 
+### Adding default flags to dtc
+
+The `devicetree_toolchain()` has an optional `default_dtcopts` attribute.
+These flags are automatically applied when `dtb()` and `dtbo()` invokes `dtc`,
+before `dtb(dtcopts=)` and `dtbo(dtcopts=)`, respectively.
+
+For a concrete example, see
+[e2e/custom_toolchain/BUILD.bazel](../e2e/custom_toolchain/BUILD.bazel).
 
 ## Using the devicetree toolchain installed on host
 
@@ -149,3 +160,7 @@ devicetree_toolchain(
     preprocess = True,
 )
 ```
+
+## Next step
+
+Next, [build devicetrees](building.md).

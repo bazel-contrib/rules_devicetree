@@ -19,10 +19,7 @@ Example:
 ```starlark
 dtbo(
     name = "baz",
-    srcs = [
-        "baz.dtso",
-        "bar.dtsi",
-    ],
+    srcs = ["baz.dtso"],
 )
 ```
 
@@ -33,7 +30,7 @@ dtbo(
 | :------------- | :------------- | :------------- | :------------- | :------------- |
 | <a id="dtbo-name"></a>name |  A unique name for this target.   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | required |  |
 | <a id="dtbo-deps"></a>deps |  List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h inclusion.<br><br>Order matters. See [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes) for details about ordering of include directories.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
-| <a id="dtbo-srcs"></a>srcs |  List of sources.<br><br>There must be exactly one `.dtso` file. Beside the `.dtso` file, extra include files like `.dtsi` can be specified.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
+| <a id="dtbo-srcs"></a>srcs |  List of sources.<br><br>There must be exactly one `.dtso` file.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
 | <a id="dtbo-out"></a>out |  Output file name. This should end with `.dtbo`.<br><br>Default is `name + ".dtbo"`, if name does not end with `.dtbo`; otherwise `name`.   | String | optional |  `""`  |
 | <a id="dtbo-dtcopts"></a>dtcopts |  List of flags to dtc.   | List of strings | optional |  `[]`  |
 
