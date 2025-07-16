@@ -1,10 +1,9 @@
 # Installation (Bzlmod)
 
-Note: There are currently no version registered against Bazel Central Registry,
-so `bazel_dep()` alone does not work yet. This will work later once we have a
-stable release.
-
-Note: Please update the version accordingly.
+Please update the version accordingly.
+For the most recent release, refer to
+[https://registry.bazel.build/modules/rules_devicetree](https://registry.bazel.build/modules/rules_devicetree)
+to update the version.
 
 ```starlark
 bazel_dep(
