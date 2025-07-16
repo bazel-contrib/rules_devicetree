@@ -19,12 +19,17 @@ permissions:
   attestations: write
   contents: write
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yaml
   release:
+    needs: ci
     uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.2.3
     with:
       release_files: rules_devicetree-*.tar.gz
       prerelease: false
       tag_name: ${{ inputs.tag_name || github.ref_name }}
+      # We don't need to run tests; `needs: ci` above already does this.
+      bazel_test_command: true
   publish:
     needs: release
     uses: ./.github/workflows/publish.yaml
