@@ -59,7 +59,11 @@ dtb_composite = rule(
     attrs = {
         "base": attr.label(
             allow_single_file = True,
-            doc = "Base `.dtb` to apply overlays on.",
+            doc = """Base `.dtb` to apply overlays on.
+
+                This usually comes from a `dtb()` target with
+                `generate_symbols = True`.
+            """,
             mandatory = True,
         ),
         "overlays": attr.label_list(
