@@ -264,7 +264,7 @@ dtb = rule(
         ),
         "dtcopts": attr.string_list(doc = "List of flags to dtc."),
         "deps": attr.label_list(
-            doc = """List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h inclusion.
+            doc = """List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h` inclusion.
 
                 Order matters. See
                 [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes)
@@ -344,7 +344,7 @@ dtbo = rule(
         ),
         "dtcopts": attr.string_list(doc = "List of flags to dtc."),
         "deps": attr.label_list(
-            doc = """List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h inclusion.
+            doc = """List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h` inclusion.
 
                 Order matters. See
                 [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes)
