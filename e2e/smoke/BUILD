@@ -38,6 +38,13 @@ dtb_composite(
     overlays = [":empty_overlay"],
 )
 
+genrule(
+    name = "empty_composite_is_a_file",
+    srcs = [":empty_composite"],
+    outs = ["empty_composite_is_a_file.txt"],
+    cmd = "echo $(execpath :empty_composite) > $@",
+)
+
 # Test that #define works.
 dtb(
     name = "define",
@@ -80,6 +87,7 @@ build_test(
         ":dtc_version",
         ":empty",
         ":empty_composite",
+        ":empty_composite_is_a_file",
         ":empty_overlay",
     ],
 )

@@ -53,6 +53,8 @@ def _dtb_composite_impl(ctx):
         progress_message = "Applying DT overlay %{label}",
     )
 
+    return DefaultInfo(files = depset([out]))
+
 dtb_composite = rule(
     implementation = _dtb_composite_impl,
     doc = "Builds a composite dtb by applying overlays on a base dtb.",
