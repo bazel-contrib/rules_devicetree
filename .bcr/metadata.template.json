@@ -1,6 +1,15 @@
 {
   "homepage": "https://github.com/bazel-contrib/rules_devicetree",
-  "maintainers": [],
+  "maintainers": [
+    {
+      "github": "jacky8hyf",
+      "github_user_id": 5271176
+    },
+    {
+      "github": "Gansito144",
+      "github_user_id": 10478507
+    }
+  ],
   "repository": ["github:bazel-contrib/rules_devicetree"],
   "versions": [],
   "yanked_versions": {}
