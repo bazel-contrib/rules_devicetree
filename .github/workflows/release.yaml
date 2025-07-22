@@ -31,6 +31,8 @@ jobs:
       # We don't need to run tests; `needs: ci` above already does this.
       bazel_test_command: true
   publish:
+    # TODO: #5 - re-enable auto-publishing after release
+    if: false
     needs: release
     uses: ./.github/workflows/publish.yaml
     with:
