@@ -15,11 +15,13 @@
 """Builds device tree blobs."""
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
+load("@rules_cc//cc:action_names.bzl", "ACTION_NAMES")
 load(
     "@rules_cc//cc:find_cc_toolchain.bzl",
     "find_cc_toolchain",
     "use_cc_toolchain",
 )
+load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load(":base_dtb_info.bzl", "BaseDtbInfo")
 load(":devicetree_library_info.bzl", "DevicetreeLibraryInfo")
 load(":utils.bzl", "utils")
@@ -55,6 +57,28 @@ def _split_sources(srcs, src_extension):
         include_files = include_files,
     )
 
+def _get_preprocessor_executable(ctx, cc_toolchain):
+    # preprocessor_executable is deprecated because tool_path() is deprecated
+    # in favor of action_configs().
+    # https://github.com/bazelbuild/bazel/issues/8438#issuecomment-1523519395
+    # So use get_tool_for_action().
+    # However, we don't have an action purely for preprocessing. The closest we
+    # have is preprocess_assemble.
+
+    feature_configuration = cc_common.configure_features(
+        ctx = ctx,
+        cc_toolchain = cc_toolchain,
+    )
+    preprocessor_executable = cc_common.get_tool_for_action(
+        feature_configuration = feature_configuration,
+        action_name = ACTION_NAMES.preprocess_assemble,
+    )
+    if not preprocessor_executable or "DUMMY_GCC_TOOL" in preprocessor_executable:
+        fail("""DT preprocessing is enabled, but no preprocessor is found in CC toolchain.
+    Please register an action_config() for the action ACTION_NAMES.preprocess_assemble.""")
+
+    return preprocessor_executable
+
 def _preprocess(
         ctx,
         support_preprocess,
@@ -76,6 +100,8 @@ def _preprocess(
 
     if not cc_toolchain:
         fail("DT preprocessing is enabled, but no CC toolchain is found. Please register a CC toolchain.")
+
+    preprocessor_executable = _get_preprocessor_executable(ctx, cc_toolchain)
 
     src_extension = paths.split_extension(src.path)[1]  # ".dts" or ".dtso"
     if out_attr:
@@ -113,7 +139,7 @@ def _preprocess(
     args.add(src)
 
     ctx.actions.run(
-        executable = cc_toolchain.preprocessor_executable,
+        executable = preprocessor_executable,
         inputs = depset(
             [src] + include_files,
             transitive = [

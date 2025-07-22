@@ -150,6 +150,10 @@ In `*.dts` and `*.dtso`, to support C preprocessor directives like
     [Bazel Tutorial: Configure C++ Toolchains](https://bazel.build/tutorials/ccp-toolchain-config)
     for details.
 
+    If you are using a custom C toolchain, ensure that you have registered a
+    tool via `action_config()` for the `ACTION_NAMES.preprocessor_assemble`
+    action.
+
 Example:
 
 ```
