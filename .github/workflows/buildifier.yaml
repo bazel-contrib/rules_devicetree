@@ -6,6 +6,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Triggers workflow for merge queue events
+  merge_group:
+    types: [checks_requested]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 jobs:
