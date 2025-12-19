@@ -69,9 +69,7 @@ _common_attrs = {
         doc = doc,
         mandatory = False,
         allow_single_file = True,
-        # Don't apply the exec transition here, because the toolchain itself should apply
-        # the transition.
-        cfg = "target",
+        cfg = "exec",
         executable = True,
     )
     for name, doc in TOOLCHAIN_TOOLS.items()
