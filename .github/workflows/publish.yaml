@@ -26,6 +26,9 @@ jobs:
       tag_name: ${{ inputs.tag_name }}
       # GitHub repository which is a fork of the upstream where the Pull Request will be opened.
       registry_fork: bazel-contrib/bazel-central-registry
+      # The bot is the author, so don't set draft to true.
+      # https://github.com/bazel-contrib/publish-to-bcr/issues/261
+      draft: false
     permissions:
       attestations: write
       contents: write
