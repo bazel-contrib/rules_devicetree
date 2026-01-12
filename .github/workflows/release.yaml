@@ -23,7 +23,7 @@ jobs:
     uses: ./.github/workflows/ci.yaml
   release:
     needs: ci
-    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.2.4
+    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.3.0
     with:
       release_files: rules_devicetree-*.tar.gz
       prerelease: false
