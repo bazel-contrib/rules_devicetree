@@ -94,3 +94,13 @@ allowed:
 ### dtcopts
 
 Use `dtcopts`, not `dtc_opts`. This is similar to `copts` and `javaopts`.
+
+## Commit messages
+
+Commit messages should follow guidelines in
+[Conventional commits](https://www.conventionalcommits.org/). Choose
+the proper type to express your intent.
+
+Use the `feat:` type if you want to bump the minor version of
+`rules_devicetree`. The [tag workflow](.github/workflows/tag.yaml) detects these
+types and create a tagged release automatically once the commit is merged.
