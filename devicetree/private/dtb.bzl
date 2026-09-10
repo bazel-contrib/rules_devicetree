@@ -149,6 +149,7 @@ def _preprocess(
         ),
         tools = cc_toolchain.all_files,
         outputs = [out],
+        mnemonic = "DtPreprocess",
         progress_message = "Preprocessing %{label}",
         arguments = [args],
     )
