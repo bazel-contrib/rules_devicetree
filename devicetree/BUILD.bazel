@@ -35,6 +35,7 @@ resolved_toolchain(
 bool_flag(
     name = "autodetect_toolchain",
     build_setting_default = False,
+    scope = "universal",
     visibility = ["//visibility:public"],
 )
 
