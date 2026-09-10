@@ -7,6 +7,16 @@ filegroup(
 )
 
 bzl_library(
+    name = "extensions",
+    srcs = ["extensions.bzl"],
+    visibility = ["//devicetree:__subpackages__"],
+    deps = [
+        ":autodetected_toolchain_repo",
+        ":devicetree_toolchains_repo",
+    ],
+)
+
+bzl_library(
     name = "autodetected_toolchain_repo",
     srcs = ["autodetected_toolchain_repo.bzl"],
     visibility = ["//devicetree:__subpackages__"],
@@ -77,6 +87,12 @@ bzl_library(
 bzl_library(
     name = "devicetree_library_info",
     srcs = ["devicetree_library_info.bzl"],
+    visibility = ["//devicetree:__subpackages__"],
+)
+
+bzl_library(
+    name = "devicetree_toolchains_repo",
+    srcs = ["devicetree_toolchains_repo.bzl"],
     visibility = ["//devicetree:__subpackages__"],
 )
 
