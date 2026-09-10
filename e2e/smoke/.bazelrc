@@ -1,1 +1,0 @@
-common --@rules_devicetree//devicetree:autodetect_toolchain

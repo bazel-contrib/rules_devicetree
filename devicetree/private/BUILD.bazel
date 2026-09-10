@@ -13,12 +13,20 @@ bzl_library(
     deps = [
         ":autodetected_toolchain_repo",
         ":devicetree_toolchains_repo",
+        ":hermetic_toolchain_repo",
     ],
 )
 
 bzl_library(
     name = "autodetected_toolchain_repo",
     srcs = ["autodetected_toolchain_repo.bzl"],
+    visibility = ["//devicetree:__subpackages__"],
+    deps = [":constants"],
+)
+
+bzl_library(
+    name = "hermetic_toolchain_repo",
+    srcs = ["hermetic_toolchain_repo.bzl"],
     visibility = ["//devicetree:__subpackages__"],
     deps = [":constants"],
 )

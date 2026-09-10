@@ -47,6 +47,24 @@ template_variables_test(
     target_under_test = ":template_variables_toolchain",
 )
 
+# Same, but for tools that come from an external repository.
+devicetree_toolchain(
+    name = "external_template_variables_toolchain",
+    dtc = "@dtc//:dtc",
+    fdtoverlay = "@dtc//:fdtoverlay",
+    preprocess = False,
+    tags = ["manual"],
+)
+
+template_variables_test(
+    name = "external_template_variables_test",
+    external_tools = [
+        "DTC",
+        "FDTOVERLAY",
+    ],
+    target_under_test = ":external_template_variables_toolchain",
+)
+
 build_test(
     name = "tests",
     targets = [

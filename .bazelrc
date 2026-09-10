@@ -17,11 +17,6 @@ common --check_direct_dependencies=off
 # https://bazel.build/reference/command-line-reference#flag--legacy_external_runfiles
 common --nolegacy_external_runfiles
 
-# Use autodetected toolchain for tests.
-# Note: Modules that depend on @rules_devicetree are not required to set this flag,
-#   unless they want to use the autodetected toolchain.
-common --@rules_devicetree//devicetree:autodetect_toolchain
-
 # Load any settings specific to the current user.
 # .bazelrc.user should appear in .gitignore so that settings are not shared with team members
 # This needs to be last statement in this
