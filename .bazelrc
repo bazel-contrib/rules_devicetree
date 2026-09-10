@@ -10,6 +10,13 @@ common --enable_bzlmod
 # https://bazelbuild.slack.com/archives/C014RARENH0/p1691158021917459?thread_ts=1691156601.420349&cid=C014RARENH0
 common --check_direct_dependencies=off
 
+# Use the Bazel 8 runfiles layout on older versions of Bazel. Without this, the
+# runfiles path of a file in an external repository is `external/<repo>/<path>`
+# instead of `../<repo>/<path>`, which makes `$(rootpath)` (and therefore
+# `$({TOOL}_ROOTPATH)`) differ between Bazel versions.
+# https://bazel.build/reference/command-line-reference#flag--legacy_external_runfiles
+common --nolegacy_external_runfiles
+
 # Use autodetected toolchain for tests.
 # Note: Modules that depend on @rules_devicetree are not required to set this flag,
 #   unless they want to use the autodetected toolchain.

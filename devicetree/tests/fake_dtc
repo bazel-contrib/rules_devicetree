@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# A stand-in for `dtc` used by `template_variables_test`.
+exit 1
