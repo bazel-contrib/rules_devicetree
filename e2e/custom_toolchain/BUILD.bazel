@@ -35,14 +35,17 @@ toolchain(
     toolchain_type = "@rules_devicetree//devicetree:toolchain_type",
 )
 
-# Test that $(DTC) in genrule works.
+# Test that $(DTC_EXECPATH) in genrule works.
 genrule(
     name = "dtc_version",
     outs = ["dtc_version.txt"],
-    cmd = "$(DTC) --version >> $@",
+    cmd = "$(DTC_EXECPATH) --version >> $@",
     # On Bazel 8.3 and above, use //devicetree:toolchain_type instead.
     # See https://github.com/bazelbuild/bazel/issues/14009
     toolchains = ["@rules_devicetree//devicetree:resolved_toolchain"],
+    # `toolchains` only wires up the template variables; the tool files
+    # must also be listed as an input so they're available in the sandbox.
+    tools = ["@rules_devicetree//devicetree:resolved_toolchain"],
 )
 
 build_test(

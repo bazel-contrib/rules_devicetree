@@ -8,14 +8,17 @@ load("@rules_devicetree//devicetree:dtb_composite.bzl", "dtb_composite")
 load("@rules_devicetree//devicetree:dtbo.bzl", "dtbo")
 load("@rules_devicetree_test_utils//:fail_analysis_test.bzl", "fail_analysis_test")
 
-# Test that $(DTC) in genrule works.
+# Test that $(DTC_EXECPATH) in genrule works.
 genrule(
     name = "dtc_version",
     outs = ["dtc_version.txt"],
-    cmd = "$(DTC) --version >> $@",
+    cmd = "$(DTC_EXECPATH) --version >> $@",
     # On Bazel 8.3 and above, use //devicetree:toolchain_type instead.
     # See https://github.com/bazelbuild/bazel/issues/14009
     toolchains = ["@rules_devicetree//devicetree:resolved_toolchain"],
+    # `toolchains` only wires up the template variables; the tool files
+    # must also be listed as an input so they're available in the sandbox.
+    tools = ["@rules_devicetree//devicetree:resolved_toolchain"],
 )
 
 # Test that an empty dts file can be built.

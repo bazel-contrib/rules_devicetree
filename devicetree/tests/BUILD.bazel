@@ -1,16 +1,21 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("//devicetree:dtb.bzl", "dtb")
+load("//devicetree:toolchain.bzl", "devicetree_toolchain")
 load("//devicetree/private:constants.bzl", "TOOLCHAIN_TOOLS")
+load(":template_variables_test.bzl", "template_variables_test")
 
-# Test that $(<tool>) in genrule works.
+# Test that $(<tool>_EXECPATH) in genrule works.
 # buildifier: disable=no-effect
 [genrule(
     name = "{}_version".format(tool),
     outs = ["{}_version.txt".format(tool)],
-    cmd = "$({}) --version >> $@".format(tool.upper()),
+    cmd = "$({}_EXECPATH) --version >> $@".format(tool.upper()),
     # On Bazel 8.3 and above, use //devicetree:toolchain_type instead.
     # See https://github.com/bazelbuild/bazel/issues/14009
     toolchains = ["//devicetree:resolved_toolchain"],
+    # `toolchains` only wires up the template variables; the tool files
+    # must also be listed as an input so they're available in the sandbox.
+    tools = ["//devicetree:resolved_toolchain"],
 ) for tool in TOOLCHAIN_TOOLS]
 
 filegroup(
@@ -21,6 +26,43 @@ filegroup(
 dtb(
     name = "empty",
     srcs = ["empty.dts"],
+)
+
+# Test that the per tool template variables match the paths Bazel's own
+# `$(execpath)`, `$(rootpath)`, and `$(rlocationpath)` templates produce.
+devicetree_toolchain(
+    name = "template_variables_toolchain",
+    dtc = "fake_dtc",
+    fdtoverlay = "fake_fdtoverlay",
+    preprocess = False,
+    tags = ["manual"],
+)
+
+template_variables_test(
+    name = "template_variables_test",
+    expected_short_paths = {
+        "DTC": "devicetree/tests/fake_dtc",
+        "FDTOVERLAY": "devicetree/tests/fake_fdtoverlay",
+    },
+    target_under_test = ":template_variables_toolchain",
+)
+
+# Same, but for tools that come from an external repository.
+devicetree_toolchain(
+    name = "external_template_variables_toolchain",
+    dtc = "@dtc//:dtc",
+    fdtoverlay = "@dtc//:fdtoverlay",
+    preprocess = False,
+    tags = ["manual"],
+)
+
+template_variables_test(
+    name = "external_template_variables_test",
+    external_tools = [
+        "DTC",
+        "FDTOVERLAY",
+    ],
+    target_under_test = ":external_template_variables_toolchain",
 )
 
 build_test(

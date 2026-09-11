@@ -1,9 +1,38 @@
 # Configuring toolchains
 
-After you [installed `rules_devicetree`](installation.md), you need to configure
-a devicetree toolchain before [building devicetrees](building.md).
+After you [installed `rules_devicetree`](installation.md), you can pick a
+devicetree toolchain before [building devicetrees](building.md).
 
-## Configuring your own devicetree toolchain (recommended)
+## Using the default hermetic toolchain
+
+By default, `rules_devicetree` registers a hermetic toolchain that builds
+`dtc` and `fdtoverlay` from source via the
+[`dtc` module in the Bazel Central Registry](https://registry.bazel.build/modules/dtc).
+
+No configuration is required — as long as a C/C++ toolchain is registered
+for the execution platform (Bazel usually auto-detects one), `dtb()`,
+`dtbo()`, and `dtb_composite()` targets will build out of the box.
+
+Because the hermetic toolchain builds `dtc` from source, downstream modules
+transitively depend on `dtc` and its dependencies even when they use a
+different toolchain (see
+[the section below](#configuring-your-own-devicetree-toolchain)). Users
+building in an air-gap environment may need to mirror these modules
+(or provide stubs).
+
+For further control over the dependency graph, override the `dtc` module in
+your own `MODULE.bazel` — either by pinning a different registry version
+with `bazel_dep(name = "dtc", version = "...")`, or by using a
+[non-registry override](https://bazel.build/external/module#non-registry_overrides)
+such as `archive_override`, `git_override`, `local_path_override`, or
+`single_version_override` to point `dtc` at a source or vendored copy of
+your choice.
+
+Any toolchain the user registers takes precedence over this default. To
+switch to host tools instead, see
+[Using the devicetree toolchain installed on host](#using-the-devicetree-toolchain-installed-on-host).
+
+## Configuring your own devicetree toolchain
 
 Invoke the `devicetree_toolchain()` rule to declare a devicetree toolchain. You
 need to provide labels to the tools like `dtc`, `fdtoverlay`, etc.
@@ -73,14 +102,18 @@ For a concrete example, see
 ## Using the devicetree toolchain installed on host
 
 If `dtc`, `fdtoverlay` etc. are installed on the machine that executes
-the build, you may use those by setting the
-`--@rules_devicetree//devicetree:autodetect_toolchain` flag.
+the build, you may use those instead of the hermetic default by setting
+`--@rules_devicetree//devicetree:autodetect_toolchain`. This swaps the
+default registered toolchain to one that resolves the tools from `PATH`.
 
 Enabling this flag increases the dependency on the execution environment,
 making the build less hermetic. Hence, this flag is not enabled by default.
 
-For a concrete example, see
-[e2e/smoke/.bazelrc](../e2e/smoke/.bazelrc)
+To enable it for every build, add it to your `.bazelrc`:
+
+```
+common --@rules_devicetree//devicetree:autodetect_toolchain
+```
 
 ## Using the devicetree toolchain from arbitrary paths
 

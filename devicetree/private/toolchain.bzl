@@ -8,12 +8,64 @@ load("//devicetree/private:devicetree_toolchain_info.bzl", "DevicetreeToolchainI
 # It shouldn't be load()ed directly by users of @rules_devicetree.
 visibility("public")
 
-# Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
+    """Computes the legacy runfiles path of a file.
+
+    This is kept as the value of the bare `$({TOOL})` template variable for
+    backwards compatibility:
+
+    * a file of the main repository becomes `<workspace name>/<path>`, the
+      same as `$({TOOL}_RLOCATIONPATH)`;
+    * a file of an external repository becomes
+      `external/<canonical repo>/<path>`, a runfiles layout that Bazel only
+      materializes with `--legacy_external_runfiles`, which is off by default
+      since Bazel 8.
+
+    Prefer one of the `_EXECPATH`, `_ROOTPATH`, or `_RLOCATIONPATH` variants
+    for new code.
+
+    Args:
+        ctx: The rule context.
+        file: The `File` to compute the path of.
+
+    Returns:
+        str: The legacy runfiles path.
+    """
     if file.short_path.startswith("../"):
         return "external/" + file.short_path[3:]
     else:
         return ctx.workspace_name + "/" + file.short_path
+
+def _path_flavor_variables(ctx, tool_name, target, file):
+    """Computes the per tool path template variables.
+
+    Args:
+        ctx: The rule context.
+        tool_name: Name of the tool, e.g. `dtc`.
+        target: The `Target` the tool attribute resolved to.
+        file: The `File` of the tool binary.
+
+    Returns:
+        dict[str, str]: Template variable names mapped to paths.
+    """
+    prefix = tool_name.upper()
+    return {
+        # Execroot-relative path — for actions whose working directory is the
+        # execroot, e.g. `genrule.cmd`.
+        prefix + "_EXECPATH": file.path,
+        # Runfiles-root-relative path — for consumers that set up a runfiles
+        # tree, e.g. `sh_test`.
+        prefix + "_ROOTPATH": ctx.expand_location(
+            "$(rootpath {})".format(target.label),
+            targets = [target],
+        ),
+        # `runfiles.Rlocation()`-compatible path — for use with the Bazel
+        # runfiles libraries.
+        prefix + "_RLOCATIONPATH": ctx.expand_location(
+            "$(rlocationpath {})".format(target.label),
+            targets = [target],
+        ),
+    }
 
 def _devicetree_toolchain_impl(ctx):
     transitive_tool_files = []
@@ -27,8 +79,9 @@ def _devicetree_toolchain_impl(ctx):
             continue
         transitive_tool_files.append(target.files)
         transitive_tool_runfiles.append(target[DefaultInfo].default_runfiles)
-        tool_path = _to_manifest_path(ctx, target.files.to_list()[0])
-        template_variables[tool_name.upper()] = tool_path
+        tool_file = target.files.to_list()[0]
+        template_variables[tool_name.upper()] = _to_manifest_path(ctx, tool_file)
+        template_variables.update(_path_flavor_variables(ctx, tool_name, target, tool_file))
         devicetree_toolchain_info_fields[tool_name] = getattr(ctx.executable, tool_name)
 
     tool_files = depset(transitive = transitive_tool_files)

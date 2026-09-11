@@ -30,7 +30,8 @@ module(
     # (breaking) change.
 )
 
-bazel_dep(name = "bazel_skylib", version = "1.7.0")
+bazel_dep(name = "bazel_skylib", version = "1.8.0")
+bazel_dep(name = "dtc", version = "1.7.2.bcr.2")
 bazel_dep(name = "package_metadata", version = "0.0.2")
 bazel_dep(name = "platforms", version = "0.0.5")
 bazel_dep(name = "rules_cc", version = "0.0.16")
@@ -41,10 +42,11 @@ bazel_dep(name = "aspect_bazel_lib", version = "2.19.4", dev_dependency = True)
 bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2", dev_dependency = True)
 bazel_dep(name = "rules_python", version = "1.5.0", dev_dependency = True)
 
-autodetected_toolchain_repo = use_repo_rule("//devicetree/private:autodetected_toolchain_repo.bzl", "autodetected_toolchain_repo")
-
-autodetected_toolchain_repo(
-    name = "autodetected_toolchain",
+toolchains = use_extension("//devicetree/private:extensions.bzl", "toolchains")
+toolchains.hermetic(
+    dtc = "@dtc//:dtc",
+    fdtoverlay = "@dtc//:fdtoverlay",
 )
+use_repo(toolchains, "devicetree_toolchains")
 
-register_toolchains("@autodetected_toolchain//:all")
+register_toolchains("@devicetree_toolchains//:all")

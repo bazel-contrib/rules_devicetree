@@ -37,7 +37,8 @@ jobs:
       bazel_test_command: |
         sudo apt-get update &&
         sudo apt-get install device-tree-compiler &&
-        bazel test //...
+        bazel test //... --no@rules_devicetree//devicetree:autodetect_toolchain &&
+        bazel test //... --@rules_devicetree//devicetree:autodetect_toolchain
   pre-commit:
     runs-on: ubuntu-latest
     steps:
