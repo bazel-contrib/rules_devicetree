@@ -145,6 +145,36 @@ Flags are applied in the following order:
 2.  `dtcopts` from `dtb()` are appended.
 3.  `-i` from `includes` of `deps` are appended.
 
+### Specifying additional flags to the preprocessor
+
+If
+[preprocessing with the C toolchain](configuring_toolchain.md#supporting-c-preprocessor-directives)
+is enabled, use the `preprocessopts` attribute to specify additional flags to
+the C preprocessor. Example:
+
+```starlark
+dtb(
+    name = "foo",
+    srcs = ["foo.dts"],
+    preprocessopts = ["-DBOARD_REV=2"],
+)
+```
+
+Flags are applied in the following order:
+
+1.  `-nostdinc`, then `-I` from `includes` of `deps`, are added.
+2.  `-undef -D__DTS__` are added.
+3.  `default_preprocessopts` from `devicetree_toolchain()` are appended.
+4.  `preprocessopts` from `dtb()` are appended.
+
+Because `-undef` comes first, it never discards the definitions in
+`default_preprocessopts` or `preprocessopts`. Because `preprocessopts` comes
+last, a `dtb()` can override a definition from `default_preprocessopts`.
+
+Setting `preprocessopts` when the source file is not preprocessed is an error.
+The flags would otherwise be silently dropped, building a devicetree that does
+not match what they ask for.
+
 ## Building a devicetree blob overlay
 
 Use the [`dtbo()`](api/dtbo.md#dtbo) rule to build a devicetree blob overlay.

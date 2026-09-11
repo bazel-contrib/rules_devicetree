@@ -1,0 +1,8 @@
+/dts-v1/;
+
+#ifndef FROM_PREPROCESSOPTS
+#error "FROM_PREPROCESSOPTS is not defined; preprocessopts was not passed to the preprocessor"
+#endif
+
+/ {
+};

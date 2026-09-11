@@ -9,7 +9,7 @@ Builds device tree blobs.
 <pre>
 load("@rules_devicetree//devicetree:dtb.bzl", "dtb")
 
-dtb(<a href="#dtb-name">name</a>, <a href="#dtb-deps">deps</a>, <a href="#dtb-srcs">srcs</a>, <a href="#dtb-out">out</a>, <a href="#dtb-dtcopts">dtcopts</a>, <a href="#dtb-generate_symbols">generate_symbols</a>)
+dtb(<a href="#dtb-name">name</a>, <a href="#dtb-deps">deps</a>, <a href="#dtb-srcs">srcs</a>, <a href="#dtb-out">out</a>, <a href="#dtb-dtcopts">dtcopts</a>, <a href="#dtb-generate_symbols">generate_symbols</a>, <a href="#dtb-preprocessopts">preprocessopts</a>)
 </pre>
 
 Build a base devicetree blob (DTB).
@@ -34,5 +34,6 @@ dtb(
 | <a id="dtb-out"></a>out |  Output file name. This should end with `.dtb`.<br><br>Default is `name + ".dtb"`, if name does not end with `.dtb`; otherwise `name`.   | String | optional |  `""`  |
 | <a id="dtb-dtcopts"></a>dtcopts |  List of flags to dtc.   | List of strings | optional |  `[]`  |
 | <a id="dtb-generate_symbols"></a>generate_symbols |  Enable generation of symbols (-@).<br><br>This is necessary if you are applying overlays on top of it.   | Boolean | optional |  `False`  |
+| <a id="dtb-preprocessopts"></a>preprocessopts |  List of flags to the C preprocessor.<br><br>These are appended after [`devicetree_toolchain(default_preprocessopts=)`](toolchain.md#devicetree_toolchain-default_preprocessopts).<br><br>Setting this when [preprocessing](../configuring_toolchain.md#supporting-c-preprocessor-directives) is not enabled is an error, because the flags would be silently dropped.   | List of strings | optional |  `[]`  |
 
 

@@ -1,7 +1,9 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("//devicetree:dtb.bzl", "dtb")
+load("//devicetree:dtbo.bzl", "dtbo")
 load("//devicetree:toolchain.bzl", "devicetree_toolchain")
 load("//devicetree/private:constants.bzl", "TOOLCHAIN_TOOLS")
+load(":preprocessopts_test.bzl", "preprocessopts_error_test", "preprocessopts_test")
 load(":template_variables_test.bzl", "template_variables_test")
 
 # Test that $(<tool>_EXECPATH) in genrule works.
@@ -26,6 +28,131 @@ filegroup(
 dtb(
     name = "empty",
     srcs = ["empty.dts"],
+)
+
+# Test that preprocessopts reaches a real preprocessor invocation. The #error in
+# preprocessopts.dts fails the build if it does not.
+dtb(
+    name = "preprocessopts",
+    srcs = ["preprocessopts.dts"],
+    preprocessopts = ["-DFROM_PREPROCESSOPTS"],
+)
+
+# Test that `default_preprocessopts` and `preprocessopts` reach the C
+# preprocessor, in that order. `preprocessopts_test` resolves the targets
+# below against this toolchain via `--extra_toolchains`.
+devicetree_toolchain(
+    name = "preprocessopts_devicetree_toolchain",
+    default_preprocessopts = [
+        "-DFROM_DEFAULT_PREPROCESSOPTS",
+        "-DVALUE=1",
+    ],
+    dtc = "fake_dtc",
+    fdtoverlay = "fake_fdtoverlay",
+    preprocess = True,
+    tags = ["manual"],
+)
+
+toolchain(
+    name = "preprocessopts_toolchain",
+    toolchain = ":preprocessopts_devicetree_toolchain",
+    toolchain_type = "//devicetree:toolchain_type",
+)
+
+dtb(
+    name = "default_preprocessopts_dtb",
+    srcs = ["empty.dts"],
+    tags = ["manual"],
+)
+
+preprocessopts_test(
+    name = "default_preprocessopts_test",
+    expected_flag_order = [
+        "-D__DTS__",
+        "-DFROM_DEFAULT_PREPROCESSOPTS",
+        "-DVALUE=1",
+        # The preprocessing mode is set after the user flags so that
+        # `preprocessopts` cannot accidentally change it.
+        "assembler-with-cpp",
+    ],
+    target_under_test = ":default_preprocessopts_dtb",
+)
+
+dtb(
+    name = "extra_preprocessopts_dtb",
+    srcs = ["empty.dts"],
+    preprocessopts = [
+        "-UVALUE",
+        "-DVALUE=2",
+    ],
+    tags = ["manual"],
+)
+
+preprocessopts_test(
+    name = "extra_preprocessopts_test",
+    expected_flag_order = [
+        "-D__DTS__",
+        # `preprocessopts` is appended after `default_preprocessopts`, so it
+        # can override it without discarding the rest of the defaults.
+        "-DFROM_DEFAULT_PREPROCESSOPTS",
+        "-DVALUE=1",
+        "-UVALUE",
+        "-DVALUE=2",
+        "assembler-with-cpp",
+    ],
+    target_under_test = ":extra_preprocessopts_dtb",
+)
+
+dtbo(
+    name = "extra_preprocessopts_dtbo",
+    srcs = ["empty.dtso"],
+    preprocessopts = [
+        "-UVALUE",
+        "-DVALUE=2",
+    ],
+    tags = ["manual"],
+)
+
+preprocessopts_test(
+    name = "extra_preprocessopts_dtbo_test",
+    expected_flag_order = [
+        "-D__DTS__",
+        "-DFROM_DEFAULT_PREPROCESSOPTS",
+        "-DVALUE=1",
+        "-UVALUE",
+        "-DVALUE=2",
+        "assembler-with-cpp",
+    ],
+    target_under_test = ":extra_preprocessopts_dtbo",
+)
+
+# Test that preprocessopts is an error, rather than silently ignored, when the
+# resolved toolchain does not preprocess.
+devicetree_toolchain(
+    name = "no_preprocess_devicetree_toolchain",
+    dtc = "fake_dtc",
+    fdtoverlay = "fake_fdtoverlay",
+    preprocess = False,
+    tags = ["manual"],
+)
+
+toolchain(
+    name = "no_preprocess_toolchain",
+    toolchain = ":no_preprocess_devicetree_toolchain",
+    toolchain_type = "//devicetree:toolchain_type",
+)
+
+dtb(
+    name = "preprocessopts_without_preprocessing_dtb",
+    srcs = ["empty.dts"],
+    preprocessopts = ["-DFROM_PREPROCESSOPTS"],
+    tags = ["manual"],
+)
+
+preprocessopts_error_test(
+    name = "preprocessopts_without_preprocessing_test",
+    error_message = "the resolved devicetree toolchain sets preprocess = False",
+    target_under_test = ":preprocessopts_without_preprocessing_dtb",
 )
 
 # Test that the per tool template variables match the paths Bazel's own
@@ -70,6 +197,7 @@ build_test(
     targets = [
         # keep sorted
         ":empty",
+        ":preprocessopts",
         ":versions",
     ],
 )

@@ -79,6 +79,36 @@ def _get_preprocessor_executable(ctx, cc_toolchain):
 
     return preprocessor_executable
 
+def _check_preprocessopts_are_used(default_preprocessopts, preprocessopts, reason, remedy):
+    """Fails if preprocessor flags are set but the source is not preprocessed.
+
+    Silently dropping the flags would build a devicetree that does not match
+    what they ask for, so this is an error rather than a no-op.
+
+    Args:
+        default_preprocessopts: `default_preprocessopts` of the resolved
+            devicetree toolchain
+        preprocessopts: the `preprocessopts` attribute of the rule
+        reason: why the source file is not preprocessed
+        remedy: how to resolve the error
+    """
+    specified = []
+    if default_preprocessopts:
+        specified.append("devicetree_toolchain(default_preprocessopts = {})".format(
+            default_preprocessopts,
+        ))
+    if preprocessopts:
+        specified.append("preprocessopts = {}".format(preprocessopts))
+
+    if not specified:
+        return
+
+    fail("{} specified, but {}, so the flags would be ignored. {}".format(
+        " and ".join(specified),
+        reason,
+        remedy,
+    ))
+
 def _preprocess(
         ctx,
         support_preprocess,
@@ -87,15 +117,30 @@ def _preprocess(
         include_files,
         out_attr,
         out_extension,
+        default_preprocessopts,
+        preprocessopts,
         deps):
     # Don't preprocess if:
     # - It is disabled in devicetree_toolchain()
     # - For the autodetected devicetree toolchain, no C toolchain is found
     if support_preprocess == False:
+        _check_preprocessopts_are_used(
+            default_preprocessopts,
+            preprocessopts,
+            "the resolved devicetree toolchain sets preprocess = False",
+            "Set devicetree_toolchain(preprocess = True), or remove the flags.",
+        )
         return src
 
     cc_toolchain = find_cc_toolchain(ctx)
     if support_preprocess == None and not cc_toolchain:
+        _check_preprocessopts_are_used(
+            default_preprocessopts,
+            preprocessopts,
+            "no CC toolchain is registered and the resolved devicetree " +
+            "toolchain leaves preprocessing optional",
+            "Register a CC toolchain for the target platform, or remove the flags.",
+        )
         return src
 
     if not cc_toolchain:
@@ -126,8 +171,14 @@ def _preprocess(
         expand_directories = False,
     )
 
-    # Handle defines
+    # Handle defines. These come before the user flags so that `-undef` does
+    # not discard the definitions in the flags below.
     args.add_all(["-undef", "-D__DTS__"])
+
+    # User flags. The rule's flags come last so a target can override the
+    # toolchain defaults.
+    args.add_all(default_preprocessopts)
+    args.add_all(preprocessopts)
 
     # Treat input files as "assembler-with-cpp"
     args.add_all(["-x", "assembler-with-cpp"])
@@ -230,6 +281,8 @@ def _dtb_impl(ctx):
         include_files = split_sources.include_files,
         out_attr = ctx.attr.out,
         out_extension = "dtb",
+        default_preprocessopts = devicetree_toolchain_info.default_preprocessopts,
+        preprocessopts = ctx.attr.preprocessopts,
         deps = ctx.attr.deps,
     )
     out = _dtc(
@@ -285,6 +338,16 @@ dtb = rule(
                 otherwise `name`.
             """,
         ),
+        "preprocessopts": attr.string_list(doc = """List of flags to the C preprocessor.
+
+            These are appended after
+            [`devicetree_toolchain(default_preprocessopts=)`](toolchain.md#devicetree_toolchain-default_preprocessopts).
+
+            Setting this when
+            [preprocessing](../configuring_toolchain.md#supporting-c-preprocessor-directives)
+            is not enabled is an error, because the flags would be silently
+            dropped.
+        """),
         "srcs": attr.label_list(
             doc = """List of sources.
 
@@ -317,6 +380,8 @@ def _dtbo_impl(ctx):
         include_files = split_sources.include_files,
         out_attr = ctx.attr.out,
         out_extension = "dtb",
+        default_preprocessopts = devicetree_toolchain_info.default_preprocessopts,
+        preprocessopts = ctx.attr.preprocessopts,
         deps = ctx.attr.deps,
     )
     out = _dtc(
@@ -365,6 +430,16 @@ dtbo = rule(
                 otherwise `name`.
             """,
         ),
+        "preprocessopts": attr.string_list(doc = """List of flags to the C preprocessor.
+
+            These are appended after
+            [`devicetree_toolchain(default_preprocessopts=)`](toolchain.md#devicetree_toolchain-default_preprocessopts).
+
+            Setting this when
+            [preprocessing](../configuring_toolchain.md#supporting-c-preprocessor-directives)
+            is not enabled is an error, because the flags would be silently
+            dropped.
+        """),
         "srcs": attr.label_list(
             doc = """List of sources.
 
