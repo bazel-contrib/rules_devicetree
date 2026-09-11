@@ -264,6 +264,27 @@ dtb = rule(
 """,
     implementation = _dtb_impl,
     attrs = {
+        "deps": attr.label_list(
+            doc = """List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h` inclusion.
+
+                Order matters. See
+                [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes)
+                for details about ordering of include directories.
+            """,
+            providers = [DevicetreeLibraryInfo],
+        ),
+        "dtcopts": attr.string_list(doc = "List of flags to dtc."),
+        "generate_symbols": attr.bool(doc = """Enable generation of symbols (-@).
+
+            This is necessary if you are applying overlays on top of it.
+        """),
+        "out": attr.string(
+            doc = """Output file name. This should end with `.dtb`.
+
+                Default is `name + ".dtb"`, if name does not end with `.dtb`;
+                otherwise `name`.
+            """,
+        ),
         "srcs": attr.label_list(
             doc = """List of sources.
 
@@ -277,27 +298,6 @@ dtb = rule(
             and add them to [`deps`](#dtb-deps).
         """,
             allow_files = True,
-        ),
-        "generate_symbols": attr.bool(doc = """Enable generation of symbols (-@).
-
-            This is necessary if you are applying overlays on top of it.
-        """),
-        "out": attr.string(
-            doc = """Output file name. This should end with `.dtb`.
-
-                Default is `name + ".dtb"`, if name does not end with `.dtb`;
-                otherwise `name`.
-            """,
-        ),
-        "dtcopts": attr.string_list(doc = "List of flags to dtc."),
-        "deps": attr.label_list(
-            doc = """List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h` inclusion.
-
-                Order matters. See
-                [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes)
-                for details about ordering of include directories.
-            """,
-            providers = [DevicetreeLibraryInfo],
         ),
     },
     toolchains = [
@@ -348,6 +348,23 @@ dtbo = rule(
 """,
     implementation = _dtbo_impl,
     attrs = {
+        "deps": attr.label_list(
+            doc = """List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h` inclusion.
+
+                Order matters. See
+                [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes)
+                for details about ordering of include directories.
+            """,
+            providers = [DevicetreeLibraryInfo],
+        ),
+        "dtcopts": attr.string_list(doc = "List of flags to dtc."),
+        "out": attr.string(
+            doc = """Output file name. This should end with `.dtbo`.
+
+                Default is `name + ".dtbo"`, if name does not end with `.dtbo`;
+                otherwise `name`.
+            """,
+        ),
         "srcs": attr.label_list(
             doc = """List of sources.
 
@@ -361,23 +378,6 @@ dtbo = rule(
             and add them to [`deps`](#dtb-deps).
         """,
             allow_files = True,
-        ),
-        "out": attr.string(
-            doc = """Output file name. This should end with `.dtbo`.
-
-                Default is `name + ".dtbo"`, if name does not end with `.dtbo`;
-                otherwise `name`.
-            """,
-        ),
-        "dtcopts": attr.string_list(doc = "List of flags to dtc."),
-        "deps": attr.label_list(
-            doc = """List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h` inclusion.
-
-                Order matters. See
-                [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes)
-                for details about ordering of include directories.
-            """,
-            providers = [DevicetreeLibraryInfo],
         ),
     },
     toolchains = [

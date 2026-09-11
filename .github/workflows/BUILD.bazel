@@ -4,5 +4,6 @@ buildifier(
     name = "buildifier.check",
     exclude_patterns = ["./.git/*"],
     lint_mode = "warn",
-    mode = "diff",
+    lint_warnings = ["all"],
+    mode = "check",
 )

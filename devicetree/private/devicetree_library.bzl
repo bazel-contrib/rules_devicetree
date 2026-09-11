@@ -45,6 +45,10 @@ devicetree_library = rule(
     doc = """A library of `.dtsi` and `.h` files that can be used in
         [`dtb()`](dtb.md#dtb) and [`dtbo()`](dtbo.md#dtbo).""",
     attrs = {
+        "deps": attr.label_list(
+            doc = "Transitive `devicetree_library()` targets.",
+            providers = [DevicetreeLibraryInfo],
+        ),
         "hdrs": attr.label_list(
             allow_files = True,
             doc = """List of exported included files (`.h`, `.dtsi`).
@@ -77,10 +81,6 @@ devicetree_library = rule(
                 that is, `includes` from dependencies are added
                 first, then `includes` from this target are added.
             """,
-        ),
-        "deps": attr.label_list(
-            doc = "Transitive `devicetree_library()` targets.",
-            providers = [DevicetreeLibraryInfo],
         ),
     },
 )

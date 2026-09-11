@@ -68,14 +68,14 @@ dtb_composite = rule(
             """,
             mandatory = True,
         ),
-        "overlays": attr.label_list(
-            allow_files = True,
-            doc = "List of `.dtbo` overlays to apply.",
-        ),
         "out": attr.string(
             doc = """Output file name.
 
                 Default is `name + ".dtb"` if missing extension, otherwise `name`.""",
+        ),
+        "overlays": attr.label_list(
+            allow_files = True,
+            doc = "List of `.dtbo` overlays to apply.",
         ),
     },
     toolchains = [
