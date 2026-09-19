@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Google LLC
+# Copyright (C) 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 visibility("//devicetree/...")
 
-DevicetreeLibraryInfo = provider(
+DevicetreeInfo = provider(
     doc = "Info of a `devicetree_library`.",
     fields = {
         "hdrs": "depset of headers, including those of dependencies",

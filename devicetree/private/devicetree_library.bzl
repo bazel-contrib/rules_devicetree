@@ -15,7 +15,7 @@
 """A library of `.dtsi` and `.h` files that can be used in [`dtb()`](dtb.md#dtb)
 and [`dtbo()`](dtbo.md#dtbo)."""
 
-load(":devicetree_library_info.bzl", "DevicetreeLibraryInfo")
+load(":devicetree_info.bzl", "DevicetreeInfo")
 
 visibility("//devicetree/...")
 
@@ -24,21 +24,21 @@ def _devicetree_library_impl(ctx):
     # Note: even though we don't have direct elements in these depsets,
     #   still specify order = "postorder" to state the intent.
     hdrs = depset(
-        transitive = [dep[DevicetreeLibraryInfo].hdrs for dep in ctx.attr.deps] +
+        transitive = [dep[DevicetreeInfo].hdrs for dep in ctx.attr.deps] +
                      [target.files for target in ctx.attr.hdrs],
         order = "postorder",
     )
     includes = depset(
-        transitive = [dep[DevicetreeLibraryInfo].includes for dep in ctx.attr.deps] +
+        transitive = [dep[DevicetreeInfo].includes for dep in ctx.attr.deps] +
                      [target.files for target in ctx.attr.includes],
         order = "postorder",
     )
 
-    devicetree_library_info = DevicetreeLibraryInfo(
+    devicetree_info = DevicetreeInfo(
         hdrs = hdrs,
         includes = includes,
     )
-    return devicetree_library_info
+    return devicetree_info
 
 devicetree_library = rule(
     implementation = _devicetree_library_impl,
@@ -47,7 +47,7 @@ devicetree_library = rule(
     attrs = {
         "deps": attr.label_list(
             doc = "Transitive `devicetree_library()` targets.",
-            providers = [DevicetreeLibraryInfo],
+            providers = [DevicetreeInfo],
         ),
         "hdrs": attr.label_list(
             allow_files = True,

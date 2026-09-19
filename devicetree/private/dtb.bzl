@@ -23,7 +23,7 @@ load(
 )
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load(":base_dtb_info.bzl", "BaseDtbInfo")
-load(":devicetree_library_info.bzl", "DevicetreeLibraryInfo")
+load(":devicetree_info.bzl", "DevicetreeInfo")
 load(":utils.bzl", "utils")
 
 visibility("//devicetree/...")
@@ -166,7 +166,7 @@ def _preprocess(
     # Handle include dirs
     args.add("-nostdinc")
     args.add_all(
-        depset(transitive = [target[DevicetreeLibraryInfo].includes for target in deps]),
+        depset(transitive = [target[DevicetreeInfo].includes for target in deps]),
         before_each = "-I",
         expand_directories = False,
     )
@@ -194,7 +194,7 @@ def _preprocess(
         inputs = depset(
             [src] + include_files,
             transitive = [
-                target[DevicetreeLibraryInfo].hdrs
+                target[DevicetreeInfo].hdrs
                 for target in deps
             ],
         ),
@@ -245,7 +245,7 @@ def _dtc(
     args.add_all(dtcopts)
 
     args.add_all(
-        depset(transitive = [target[DevicetreeLibraryInfo].includes for target in deps]),
+        depset(transitive = [target[DevicetreeInfo].includes for target in deps]),
         before_each = "-i",
         expand_directories = False,
     )
@@ -260,7 +260,7 @@ def _dtc(
         inputs = depset(
             [src] + include_files,
             transitive = [
-                target[DevicetreeLibraryInfo].hdrs
+                target[DevicetreeInfo].hdrs
                 for target in deps
             ],
         ),
@@ -324,7 +324,7 @@ dtb = rule(
                 [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes)
                 for details about ordering of include directories.
             """,
-            providers = [DevicetreeLibraryInfo],
+            providers = [DevicetreeInfo],
         ),
         "dtcopts": attr.string_list(doc = "List of flags to dtc."),
         "generate_symbols": attr.bool(doc = """Enable generation of symbols (-@).
@@ -420,7 +420,7 @@ dtbo = rule(
                 [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes)
                 for details about ordering of include directories.
             """,
-            providers = [DevicetreeLibraryInfo],
+            providers = [DevicetreeInfo],
         ),
         "dtcopts": attr.string_list(doc = "List of flags to dtc."),
         "out": attr.string(
