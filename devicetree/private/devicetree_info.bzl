@@ -12,16 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Info of a `devicetree_library`"""
+"""Headers and include directories of a devicetree target."""
 
 visibility("//devicetree/...")
 
 DevicetreeInfo = provider(
-    doc = "Info of a `devicetree_library`.",
+    doc = """Headers and include directories of a devicetree target.
+
+        Any rule may return this provider to make its generated `.dtsi` and
+        `.h` files usable from the `deps` of
+        [`dtb()`](dtb.md#dtb) and [`dtbo()`](dtbo.md#dtbo); it is not limited
+        to [`devicetree_library()`](devicetree_library.md#devicetree_library).
+
+        Both depsets must be constructed with `order = "postorder"` so that
+        include directories from dependencies precede those of the target
+        itself. See
+        [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes).
+    """,
     fields = {
-        "hdrs": "depset of headers, including those of dependencies",
-        "includes": """depset of `File`s representing include directories,
-            including those of dependencies.
+        "hdrs": """(`depset` of `File`) Header files (`.h`, `.dtsi`) made
+            available to dependents, including those of dependencies. These
+            become inputs of the preprocessor and `dtc` actions.""",
+        "includes": """(`depset` of `File`) Directories added to the
+            preprocessor (`-I`) and `dtc` (`-i`) search path, including those
+            of dependencies. These are `File`s of directories, not of files.
         """,
     },
 )
