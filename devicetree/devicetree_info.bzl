@@ -12,16 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Info of a `devicetree_library`"""
+"""Headers and include directories of a devicetree target."""
 
-visibility("//devicetree/...")
+load("//devicetree/private:devicetree_info.bzl", _DevicetreeInfo = "DevicetreeInfo")
 
-DevicetreeLibraryInfo = provider(
-    doc = "Info of a `devicetree_library`.",
-    fields = {
-        "hdrs": "depset of headers, including those of dependencies",
-        "includes": """depset of `File`s representing include directories,
-            including those of dependencies.
-        """,
-    },
-)
+visibility("public")
+
+DevicetreeInfo = _DevicetreeInfo
