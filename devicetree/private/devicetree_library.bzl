@@ -34,16 +34,18 @@ def _devicetree_library_impl(ctx):
         order = "postorder",
     )
 
-    devicetree_info = DevicetreeInfo(
-        hdrs = hdrs,
-        includes = includes,
-    )
-    return devicetree_info
+    return [
+        DevicetreeInfo(
+            hdrs = hdrs,
+            includes = includes,
+        ),
+    ]
 
 devicetree_library = rule(
     implementation = _devicetree_library_impl,
     doc = """A library of `.dtsi` and `.h` files that can be used in
         [`dtb()`](dtb.md#dtb) and [`dtbo()`](dtbo.md#dtbo).""",
+    provides = [DevicetreeInfo],
     attrs = {
         "deps": attr.label_list(
             doc = "Transitive `devicetree_library()` targets.",
