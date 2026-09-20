@@ -50,7 +50,7 @@ devicetree_library = rule(
             providers = [DevicetreeLibraryInfo],
         ),
         "hdrs": attr.label_list(
-            allow_files = True,
+            allow_files = [".h", ".dtsi", ".dts", ".dtso"],
             doc = """List of exported included files (`.h`, `.dtsi`).
 
                 These files are visible to all targets that transitively depend

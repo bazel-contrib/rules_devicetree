@@ -60,7 +60,7 @@ dtb_composite = rule(
     doc = "Builds a composite dtb by applying overlays on a base dtb.",
     attrs = {
         "base": attr.label(
-            allow_single_file = True,
+            allow_single_file = [".dtb"],
             doc = """Base `.dtb` to apply overlays on.
 
                 This usually comes from a `dtb()` target with
@@ -74,7 +74,7 @@ dtb_composite = rule(
                 Default is `name + ".dtb"` if missing extension, otherwise `name`.""",
         ),
         "overlays": attr.label_list(
-            allow_files = True,
+            allow_files = [".dtbo"],
             doc = "List of `.dtbo` overlays to apply.",
         ),
     },

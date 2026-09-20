@@ -1,0 +1,7 @@
+/dts-v1/;
+
+#include "sub/dt-bindings.h"
+#include "sub/srcs_include.dtsi"
+
+/ {
+};

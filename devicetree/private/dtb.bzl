@@ -360,7 +360,7 @@ dtb = rule(
             [`devicetree_library()`](devicetree_library.md#devicetree_library)
             and add them to [`deps`](#dtb-deps).
         """,
-            allow_files = True,
+            allow_files = [".dts", ".dtsi", ".h"],
         ),
     },
     toolchains = [
@@ -452,7 +452,7 @@ dtbo = rule(
             [`devicetree_library()`](devicetree_library.md#devicetree_library)
             and add them to [`deps`](#dtb-deps).
         """,
-            allow_files = True,
+            allow_files = [".dtso", ".dtsi", ".h"],
         ),
     },
     toolchains = [
