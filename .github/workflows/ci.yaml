@@ -22,6 +22,12 @@ jobs:
   test:
     uses: bazel-contrib/.github/.github/workflows/bazel.yaml@v7.7.0
     with:
+      bazel_versions: |
+        [
+          "7.x",
+          "8.x",
+          "9.x"
+        ]
       folders: |
         [
           ".",
