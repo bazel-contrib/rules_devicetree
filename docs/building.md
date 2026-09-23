@@ -6,7 +6,9 @@ devicetree blobs (DTB), devicetree blob overlays (DTBO), and composite DTBs.
 
 ## Building a base devicetree blob
 
-Use the [`dtb()`](api/dtb.md#dtb) rule to build a base DTB. Example:
+Use the
+[`dtb()`](https://registry.bazel.build/modules/rules_devicetree/latest/docs/devicetree/dtb.bzl/dtb)
+rule to build a base DTB. Example:
 
 ```starlark
 load("@rules_devicetree//devicetree:dtb.bzl", "dtb")
@@ -77,7 +79,8 @@ For a concrete example, see
 
 If the `.dtsi` and `.h` files are in a different directory, and/or you need to
 specify `-i` option to `dtc`, use a
-[`devicetree_library()`](api/devicetree_library.md#devicetree_library). Example:
+[`devicetree_library()`](https://registry.bazel.build/modules/rules_devicetree/latest/docs/devicetree/devicetree_library.bzl/devicetree_library).
+Example:
 
 ```
 load("@rules_devicetree//devicetree:devicetree_library.bzl", "devicetree_library")
@@ -177,7 +180,9 @@ not match what they ask for.
 
 ## Building a devicetree blob overlay
 
-Use the [`dtbo()`](api/dtbo.md#dtbo) rule to build a devicetree blob overlay.
+Use the
+[`dtbo()`](https://registry.bazel.build/modules/rules_devicetree/latest/docs/devicetree/dtbo.bzl/dtbo)
+rule to build a devicetree blob overlay.
 The `dtbo()` rule has a similar API to `dtb()`, except that:
 
 - Exactly one `.dtso` file is expected in `srcs`.
@@ -206,7 +211,9 @@ For a concrete example, see
 
 ## Building a composite DTB
 
-Use the [`dtb_composite()`](api/dtb_composite.md#dtb_composite) rule to
+Use the
+[`dtb_composite()`](https://registry.bazel.build/modules/rules_devicetree/latest/docs/devicetree/dtb_composite.bzl/dtb_composite)
+rule to
 build a composite DTB from a base DTB and a list of DTB overlays. Example:
 
 ```starlark

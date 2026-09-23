@@ -1,10 +1,4 @@
-# These load statements must be in the docs/ package rather than anything users
-# depend on so that the dependency on stardoc doesn't leak to them.
-load("@bazel_lib//lib:write_source_files.bzl", "write_source_files")
-load("@stardoc//stardoc:stardoc.bzl", "stardoc")
-
-# Each entry documents `//devicetree:{name}` into the checked-in `api/{name}.md`.
-# Run `bazel run //docs:update` to regenerate them.
+# List of `//devicetree:{name}` to be released in docs.
 API_DOCS = [
     # keep sorted
     "devicetree_info",
@@ -16,25 +10,10 @@ API_DOCS = [
 ]
 
 [
-    stardoc(
-        name = "api/{}".format(doc),
-        out = "api/{}-docgen.md".format(doc),
-        input = "//devicetree:{}.bzl".format(doc),
-        # stardoc produces different line endings on Windows
-        # which makes the diff_test fail
-        target_compatible_with = select({
-            "@platforms//os:windows": ["@platforms//:incompatible"],
-            "//conditions:default": [],
-        }),
+    starlark_doc_extract(
+        name = "{}.doc_extract".format(doc),
+        src = "//devicetree:{}.bzl".format(doc),
         deps = ["//devicetree:{}".format(doc)],
     )
     for doc in API_DOCS
 ]
-
-write_source_files(
-    name = "update",
-    files = {
-        "api/{}.md".format(doc): "api/{}-docgen.md".format(doc)
-        for doc in API_DOCS
-    },
-)

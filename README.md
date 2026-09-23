@@ -12,4 +12,4 @@ Ruleset for building [devicetrees](https://www.devicetree.org/).
 
 ## API reference
 
-[Documentation to all rules](docs/api)
+[Documentation to all rules](https://registry.bazel.build/modules/rules_devicetree/latest/docs/)
