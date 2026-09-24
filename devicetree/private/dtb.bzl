@@ -318,10 +318,10 @@ dtb = rule(
     implementation = _dtb_impl,
     attrs = {
         "deps": attr.label_list(
-            doc = """List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h` inclusion.
+            doc = """List of [`devicetree_library()`](../devicetree_library.bzl/devicetree_library) targets for `.dtsi` and `.h` inclusion.
 
                 Order matters. See
-                [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes)
+                [`devicetree_library(includes=)`](../devicetree_library.bzl/devicetree_library)
                 for details about ordering of include directories.
             """,
             providers = [DevicetreeInfo],
@@ -341,10 +341,10 @@ dtb = rule(
         "preprocessopts": attr.string_list(doc = """List of flags to the C preprocessor.
 
             These are appended after
-            [`devicetree_toolchain(default_preprocessopts=)`](toolchain.md#devicetree_toolchain-default_preprocessopts).
+            [`devicetree_toolchain(default_preprocessopts=)`](../toolchain.bzl/devicetree_toolchain).
 
             Setting this when
-            [preprocessing](../configuring_toolchain.md#supporting-c-preprocessor-directives)
+            [preprocessing](https://github.com/bazel-contrib/rules_devicetree/blob/main/docs/configuring_toolchain.md#supporting-c-preprocessor-directives)
             is not enabled is an error, because the flags would be silently
             dropped.
         """),
@@ -357,8 +357,8 @@ dtb = rule(
             also be specified if you do not need extra search directories
             (`-i` option to `dtc`). If you do need to pair search
             directories with `.dtsi` and `.h` files, use
-            [`devicetree_library()`](devicetree_library.md#devicetree_library)
-            and add them to [`deps`](#dtb-deps).
+            [`devicetree_library()`](../devicetree_library.bzl/devicetree_library)
+            and add them to [`deps`](../dtb.bzl/dtb).
         """,
             allow_files = [".dts", ".dtsi", ".h"],
         ),
@@ -414,10 +414,10 @@ dtbo = rule(
     implementation = _dtbo_impl,
     attrs = {
         "deps": attr.label_list(
-            doc = """List of [`devicetree_library()`](devicetree_library.md#devicetree_library) targets for `.dtsi` and `.h` inclusion.
+            doc = """List of [`devicetree_library()`](../devicetree_library.bzl/devicetree_library) targets for `.dtsi` and `.h` inclusion.
 
                 Order matters. See
-                [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes)
+                [`devicetree_library(includes=)`](../devicetree_library.bzl/devicetree_library)
                 for details about ordering of include directories.
             """,
             providers = [DevicetreeInfo],
@@ -433,10 +433,10 @@ dtbo = rule(
         "preprocessopts": attr.string_list(doc = """List of flags to the C preprocessor.
 
             These are appended after
-            [`devicetree_toolchain(default_preprocessopts=)`](toolchain.md#devicetree_toolchain-default_preprocessopts).
+            [`devicetree_toolchain(default_preprocessopts=)`](../toolchain.bzl/devicetree_toolchain).
 
             Setting this when
-            [preprocessing](../configuring_toolchain.md#supporting-c-preprocessor-directives)
+            [preprocessing](https://github.com/bazel-contrib/rules_devicetree/blob/main/docs/configuring_toolchain.md#supporting-c-preprocessor-directives)
             is not enabled is an error, because the flags would be silently
             dropped.
         """),
@@ -449,8 +449,8 @@ dtbo = rule(
             also be specified if you do not need extra search directories
             (`-i` option to `dtc`). If you do need to pair search
             directories with `.dtsi` and `.h` files, use
-            [`devicetree_library()`](devicetree_library.md#devicetree_library)
-            and add them to [`deps`](#dtb-deps).
+            [`devicetree_library()`](../devicetree_library.bzl/devicetree_library)
+            and add them to [`deps`](../dtbo.bzl/dtbo).
         """,
             allow_files = [".dtso", ".dtsi", ".h"],
         ),

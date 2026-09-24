@@ -21,13 +21,13 @@ DevicetreeInfo = provider(
 
         Any rule may return this provider to make its generated `.dtsi` and
         `.h` files usable from the `deps` of
-        [`dtb()`](dtb.md#dtb) and [`dtbo()`](dtbo.md#dtbo); it is not limited
-        to [`devicetree_library()`](devicetree_library.md#devicetree_library).
+        [`dtb()`](../dtb.bzl/dtb) and [`dtbo()`](../dtbo.bzl/dtbo); it is not limited
+        to [`devicetree_library()`](../devicetree_library.bzl/devicetree_library).
 
         Both depsets must be constructed with `order = "postorder"` so that
         include directories from dependencies precede those of the target
         itself. See
-        [`devicetree_library(includes=)`](devicetree_library.md#devicetree_library-includes).
+        [`devicetree_library(includes=)`](../devicetree_library.bzl/devicetree_library).
     """,
     fields = {
         "hdrs": """(`depset` of `File`) Header files (`.h`, `.dtsi`) made

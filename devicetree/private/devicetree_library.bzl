@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""A library of `.dtsi` and `.h` files that can be used in [`dtb()`](dtb.md#dtb)
-and [`dtbo()`](dtbo.md#dtbo)."""
+"""A library of `.dtsi` and `.h` files that can be used in [`dtb()`](../dtb.bzl/dtb)
+and [`dtbo()`](../dtbo.bzl/dtbo)."""
 
 load(":devicetree_info.bzl", "DevicetreeInfo")
 
@@ -44,7 +44,7 @@ def _devicetree_library_impl(ctx):
 devicetree_library = rule(
     implementation = _devicetree_library_impl,
     doc = """A library of `.dtsi` and `.h` files that can be used in
-        [`dtb()`](dtb.md#dtb) and [`dtbo()`](dtbo.md#dtbo).""",
+        [`dtb()`](../dtb.bzl/dtb) and [`dtbo()`](../dtbo.bzl/dtbo).""",
     provides = [DevicetreeInfo],
     attrs = {
         "deps": attr.label_list(
@@ -62,8 +62,8 @@ devicetree_library = rule(
             allow_files = True,
             doc = """List of exported include directories in the current package.
 
-                These `-i` are added to all [`dtb()`](dtb.md#dtb) and
-                [`dtbo()`](dtbo.md#dtbo) targets that transitively depend on
+                These `-i` are added to all [`dtb()`](../dtb.bzl/dtb) and
+                [`dtbo()`](../dtbo.bzl/dtbo) targets that transitively depend on
                 this target.
 
                 These should be labels to **directories**, not files. For

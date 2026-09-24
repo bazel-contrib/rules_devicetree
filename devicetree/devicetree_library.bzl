@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""A library of `.dtsi` and `.h` files that can be used in [`dtb()`](dtb.md#dtb)
-and [`dtbo()`](dtbo.md#dtbo)."""
+"""A library of `.dtsi` and `.h` files that can be used in [`dtb()`](../dtb.bzl/dtb)
+and [`dtbo()`](../dtbo.bzl/dtbo)."""
 
 load("//devicetree/private:devicetree_library.bzl", _devicetree_library = "devicetree_library")
 
