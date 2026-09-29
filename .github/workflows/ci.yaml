@@ -40,11 +40,26 @@ jobs:
           {"os": "macos-latest"},
           {"os": "windows-latest"}
         ]
+      # Mitigate flakiness from sources outside this repository:
+      # - Retry HTTP 5xx from download hosts (e.g. GitHub release assets) for
+      #   longer than Bazel's default (~13s total backoff).
+      # - Retry loading and analysis (which fetches all needed external repos)
+      #   a few times, then run tests exactly once so genuine test failures
+      #   are not masked.
       bazel_test_command: |
-        sudo apt-get update &&
-        sudo apt-get install device-tree-compiler &&
-        bazel test //... --no@rules_devicetree//devicetree:autodetect_toolchain &&
-        bazel test //... --@rules_devicetree//devicetree:autodetect_toolchain
+        set -e
+        sudo apt-get update
+        sudo apt-get install device-tree-compiler
+        http_retry_flags="--http_connector_attempts=12 --http_connector_retry_max_timeout=30s"
+        for autodetect in --no@rules_devicetree//devicetree:autodetect_toolchain --@rules_devicetree//devicetree:autodetect_toolchain; do
+          for attempt in 1 2 3; do
+            bazel build --nobuild //... "$autodetect" $http_retry_flags && break
+            [ "$attempt" = 3 ] && exit 1
+            echo "Fetch/analysis failed (attempt $attempt); retrying in 60s."
+            sleep 60
+          done
+          bazel test //... "$autodetect" $http_retry_flags
+        done
   pre-commit:
     runs-on: ubuntu-latest
     steps:
