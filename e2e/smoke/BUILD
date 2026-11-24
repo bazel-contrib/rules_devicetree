@@ -7,6 +7,7 @@ load("@rules_devicetree//devicetree:dtb.bzl", "dtb")
 load("@rules_devicetree//devicetree:dtb_composite.bzl", "dtb_composite")
 load("@rules_devicetree//devicetree:dtbo.bzl", "dtbo")
 load("@rules_devicetree_test_utils//:fail_analysis_test.bzl", "fail_analysis_test")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 
 # Test that $(DTC_EXECPATH) in genrule works.
 genrule(
@@ -48,6 +49,28 @@ genrule(
     cmd = "echo $(execpath :empty_composite) > $@",
 )
 
+# Test that a composite can be aligned by passing it to dtb() as a .dtb source.
+# fdtoverlay packs its output, so without the dtc pass the composite would be
+# far smaller than 4096 bytes.
+dtb(
+    name = "aligned_composite",
+    srcs = [":empty_composite"],
+    dtcopts = [
+        "-a",
+        "4096",
+    ],
+)
+
+sh_test(
+    name = "aligned_composite_is_4096_bytes",
+    srcs = ["@rules_devicetree_test_utils//:check_file_size.sh"],
+    args = [
+        "$(rootpath :aligned_composite)",
+        "4096",
+    ],
+    data = [":aligned_composite"],
+)
+
 # Test that #define works.
 dtb(
     name = "define",
@@ -86,6 +109,7 @@ build_test(
     name = "build_tests",
     targets = [
         # keep sorted
+        ":aligned_composite",
         ":define",
         ":dtc_version",
         ":empty",

@@ -1,8 +1,10 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("//devicetree:dtb.bzl", "dtb")
+load("//devicetree:dtb_composite.bzl", "dtb_composite")
 load("//devicetree:dtbo.bzl", "dtbo")
 load("//devicetree:toolchain.bzl", "devicetree_toolchain")
 load("//devicetree/private:constants.bzl", "TOOLCHAIN_TOOLS")
+load(":dtb_from_dtb_test.bzl", "dtb_from_dtb_error_test", "dtb_from_dtb_preprocessing_test", "dtb_from_dtb_test")
 load(":preprocessopts_test.bzl", "preprocessopts_error_test", "preprocessopts_test")
 load(":template_variables_test.bzl", "template_variables_test")
 
@@ -190,6 +192,135 @@ template_variables_test(
         "FDTOVERLAY",
     ],
     target_under_test = ":external_template_variables_toolchain",
+)
+
+# Test that `dtb(srcs=)` accepts a `.dtb` and rewrites it with `dtc -I dtb`.
+# `dtb_from_dtb_test` resolves the targets below against this toolchain via
+# `--extra_toolchains`.
+devicetree_toolchain(
+    name = "dtcopts_devicetree_toolchain",
+    default_dtcopts = [
+        "-I",
+        "dts",
+        "-a",
+        "1024",
+    ],
+    dtc = "fake_dtc",
+    fdtoverlay = "fake_fdtoverlay",
+    preprocess = False,
+    tags = ["manual"],
+)
+
+toolchain(
+    name = "dtcopts_toolchain",
+    toolchain = ":dtcopts_devicetree_toolchain",
+    toolchain_type = "//devicetree:toolchain_type",
+)
+
+dtb(
+    name = "composite_base",
+    srcs = ["empty.dts"],
+    generate_symbols = True,
+    tags = ["manual"],
+)
+
+dtbo(
+    name = "composite_overlay",
+    srcs = ["empty.dtso"],
+    tags = ["manual"],
+)
+
+dtb_composite(
+    name = "composite",
+    base = ":composite_base",
+    overlays = [":composite_overlay"],
+    tags = ["manual"],
+)
+
+dtb(
+    name = "padded_composite",
+    srcs = [":composite"],
+    dtcopts = [
+        "-p",
+        "0x1000",
+    ],
+    tags = ["manual"],
+)
+
+dtb_from_dtb_test(
+    name = "padded_composite_test",
+    # `dtb_composite()` carries no `BaseDtbInfo`, so neither does its padded copy.
+    expect_base_dtb_info = False,
+    expected_flag_order = [
+        # `default_dtcopts` come first, including an `-I dts` that must lose.
+        "-I",
+        "dts",
+        "-a",
+        "1024",
+        # `dtcopts` is appended after `default_dtcopts`.
+        "-p",
+        "0x1000",
+        # `-I dtb` is set after the user flags. The test also checks that the
+        # last `-I` is `dtb`.
+        "dtb",
+        "-o",
+    ],
+    target_under_test = ":padded_composite",
+)
+
+# The `.dtb` output of a `dtb()` target keeps that target's `BaseDtbInfo`,
+# so it is still accepted as a `dtb_composite()` base.
+dtb(
+    name = "padded_base",
+    srcs = [":composite_base"],
+    dtcopts = [
+        "-p",
+        "0x1000",
+    ],
+    tags = ["manual"],
+)
+
+dtb_from_dtb_test(
+    name = "padded_base_test",
+    expect_base_dtb_info = True,
+    expected_flag_order = [
+        "-p",
+        "0x1000",
+        "dtb",
+        "-o",
+    ],
+    expected_generate_symbols = True,
+    target_under_test = ":padded_base",
+)
+
+# A `.dtb` source is not preprocessed even when the toolchain preprocesses.
+dtb(
+    name = "padded_base_with_preprocessing",
+    srcs = [":composite_base"],
+    dtcopts = [
+        "-p",
+        "0x1000",
+    ],
+    tags = ["manual"],
+)
+
+dtb_from_dtb_preprocessing_test(
+    name = "padded_base_with_preprocessing_test",
+    target_under_test = ":padded_base_with_preprocessing",
+)
+
+# `preprocessopts` on a `.dtb` source is an error rather than silently dropped.
+dtb(
+    name = "preprocessopts_on_dtb",
+    srcs = [":composite_base"],
+    preprocessopts = ["-DFROM_PREPROCESSOPTS"],
+    tags = ["manual"],
+)
+
+dtb_from_dtb_error_test(
+    name = "preprocessopts_on_dtb_test",
+    error_message = "is a .dtb, which cannot be preprocessed",
+    target_under_test = ":preprocessopts_on_dtb",
 )
 
 build_test(
