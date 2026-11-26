@@ -22,6 +22,10 @@ load("@rules_shell//shell:sh_test.bzl", "sh_test")
 devicetree_toolchain(
     name = "custom_devicetree_toolchain",
     default_dtcopts = [
+        # Defaults written for `.dts` sources. `-I dts` must not break a
+        # `.dtb` source, see `:padded_empty` below.
+        "-I",
+        "dts",
         "-a",
         "1024",
     ],
@@ -64,7 +68,7 @@ dtb(
 
 sh_test(
     name = "empty_dtb_is_1024_bytes",
-    srcs = ["check_file_size.sh"],
+    srcs = ["@rules_devicetree_test_utils//:check_file_size.sh"],
     args = [
         "$(rootpath :empty)",
         "1024",
@@ -84,12 +88,34 @@ dtb(
 
 sh_test(
     name = "extra_dtcopts_dtb_is_2048_bytes",
-    srcs = ["check_file_size.sh"],
+    srcs = ["@rules_devicetree_test_utils//:check_file_size.sh"],
     args = [
         "$(rootpath :extra_dtcopts)",
         "2048",
     ],
     data = [":extra_dtcopts"],
+)
+
+# Checks that a .dtb source is rewritten with default_dtcopts and dtcopts
+# applied, and that `-I dtb` wins over the `-I dts` default. The 1024 byte
+# input gets 4096 bytes of padding and is aligned to 1024 again.
+dtb(
+    name = "padded_empty",
+    srcs = [":empty"],
+    dtcopts = [
+        "-p",
+        "0x1000",
+    ],
+)
+
+sh_test(
+    name = "padded_empty_dtb_is_5120_bytes",
+    srcs = ["@rules_devicetree_test_utils//:check_file_size.sh"],
+    args = [
+        "$(rootpath :padded_empty)",
+        "5120",
+    ],
+    data = [":padded_empty"],
 )
 
 dtb_composite(

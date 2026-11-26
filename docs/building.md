@@ -234,3 +234,36 @@ Similarly, the `out` attribute is optional, and defaults to `[name].dtb`.
 
 For a concrete example, see
 [e2e/smoke/BUILD](../e2e/smoke/BUILD).
+
+### Padding or aligning the composite
+
+`fdtoverlay` packs its output, so the composite DTB has no free space. If the
+bootloader writes into the devicetree at boot time (for example,
+`/chosen/bootargs` or the initrd address), it needs headroom after the packed
+data. Padding the base with `dtb(dtcopts = ["-p", ...])` does not survive the
+merge. Instead, pass the composite to `dtb()` as a `.dtb` source. Example:
+
+```starlark
+dtb_composite(
+    name = "composite",
+    base = ":foo",
+    overlays = [":bar"],
+)
+
+dtb(
+    name = "padded",
+    srcs = [":composite"],
+    dtcopts = ["-p", "0x1000"],
+)
+```
+
+This uses `fdtoverlay` to apply `bar.dtbo` on top of `foo.dtb`, then
+`dtc -I dtb` to add 4096 bytes of padding, creating `padded.dtb`.
+
+A `.dtb` source is not preprocessed, so `preprocessopts` is an error on it.
+`default_dtcopts` from `devicetree_toolchain()` and `dtcopts` are applied as
+usual, and `-I dtb` is appended after them so they can't change the input
+format. This works for any `.dtb`, including prebuilt ones.
+
+For a concrete example, see
+[e2e/smoke/BUILD](../e2e/smoke/BUILD).

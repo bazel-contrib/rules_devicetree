@@ -28,12 +28,12 @@ load(":utils.bzl", "utils")
 
 visibility("//devicetree/...")
 
-def _split_sources(srcs, src_extension):
+def _split_sources(srcs, src_extensions):
     """Split the list of `srcs`.
 
     Args:
         srcs: ctx.attr.srcs
-        src_extension: expected extension of the source file
+        src_extensions: accepted extensions of the single source file
 
     Returns:
         struct of these fields:
@@ -44,13 +44,16 @@ def _split_sources(srcs, src_extension):
     sources = []
     include_files = []
     for file in srcs:
-        if not file.extension == src_extension:
+        if file.extension not in src_extensions:
             include_files.append(file)
         else:
             sources.append(file)
 
     if len(sources) != 1:
-        fail("Expect exactly one .{} file in srcs, got {}".format(src_extension, sources))
+        fail("Expect exactly one {} file in srcs, got {}".format(
+            " or ".join(["." + ext for ext in src_extensions]),
+            sources,
+        ))
 
     return struct(
         src = sources[0],
@@ -216,7 +219,8 @@ def _dtc(
         out_extension,
         dtcopts,
         devicetree_toolchain_info,
-        deps):
+        deps,
+        input_format = None):
     """Invokes dtc.
 
     Args:
@@ -229,6 +233,7 @@ def _dtc(
         dtcopts: list of flags to dtc
         devicetree_toolchain_info: `DevicetreeToolchainInfo` of resolved toolchain
         deps: list of Targets in deps
+        input_format: `-I` to pass to dtc, or None to let dtc guess from `src`
 
     Returns:
         the output file
@@ -252,6 +257,11 @@ def _dtc(
 
     if generate_symbols:
         args.add("-@")
+
+    # The input format comes after `default_dtcopts` and `dtcopts` so that an
+    # `-I dts` in either of them cannot be applied to a `.dtb` source.
+    if input_format:
+        args.add("-I", input_format)
     args.add("-o", out)
     args.add(src)
     ctx.actions.run(
@@ -272,19 +282,34 @@ def _dtc(
 
 def _dtb_impl(ctx):
     devicetree_toolchain_info = ctx.toolchains["//devicetree:toolchain_type"].devicetree_toolchain_info
-    split_sources = _split_sources(ctx.files.srcs, "dts")
+    split_sources = _split_sources(ctx.files.srcs, ["dts", "dtb"])
+    src = split_sources.src
+    from_dtb = src.extension == "dtb"
 
-    preprocessed = _preprocess(
-        ctx = ctx,
-        support_preprocess = devicetree_toolchain_info.preprocess,
-        src = split_sources.src,
-        include_files = split_sources.include_files,
-        out_attr = ctx.attr.out,
-        out_extension = "dtb",
-        default_preprocessopts = devicetree_toolchain_info.default_preprocessopts,
-        preprocessopts = ctx.attr.preprocessopts,
-        deps = ctx.attr.deps,
-    )
+    if from_dtb:
+        # A compiled blob is rewritten by `dtc -I dtb`, typically to add
+        # padding or alignment that `fdtoverlay` strips. It cannot be
+        # preprocessed, so `preprocessopts` would be silently dropped.
+        # `default_preprocessopts` of the toolchain are ignored on purpose, as
+        # they are meant for `.dts` sources.
+        if ctx.attr.preprocessopts:
+            fail("preprocessopts = {} specified, but {} is a .dtb, which cannot be preprocessed.".format(
+                ctx.attr.preprocessopts,
+                src.short_path,
+            ))
+        preprocessed = src
+    else:
+        preprocessed = _preprocess(
+            ctx = ctx,
+            support_preprocess = devicetree_toolchain_info.preprocess,
+            src = src,
+            include_files = split_sources.include_files,
+            out_attr = ctx.attr.out,
+            out_extension = "dtb",
+            default_preprocessopts = devicetree_toolchain_info.default_preprocessopts,
+            preprocessopts = ctx.attr.preprocessopts,
+            deps = ctx.attr.deps,
+        )
     out = _dtc(
         ctx = ctx,
         src = preprocessed,
@@ -295,13 +320,23 @@ def _dtb_impl(ctx):
         dtcopts = ctx.attr.dtcopts,
         devicetree_toolchain_info = devicetree_toolchain_info,
         deps = ctx.attr.deps,
+        input_format = "dtb" if from_dtb else None,
     )
-    return [
-        DefaultInfo(files = depset([out])),
-        BaseDtbInfo(
+
+    providers = [DefaultInfo(files = depset([out]))]
+    if from_dtb:
+        # Whether the output has symbols is decided by the input blob, not by
+        # `generate_symbols`, so forward what is known about the input.
+        providers.extend([
+            target[BaseDtbInfo]
+            for target in ctx.attr.srcs
+            if BaseDtbInfo in target
+        ][:1])
+    else:
+        providers.append(BaseDtbInfo(
             generate_symbols = ctx.attr.generate_symbols,
-        ),
-    ]
+        ))
+    return providers
 
 dtb = rule(
     doc = """Build a base devicetree blob (DTB).
@@ -351,7 +386,7 @@ dtb = rule(
         "srcs": attr.label_list(
             doc = """List of sources.
 
-            There must be exactly one `.dts` file.
+            There must be exactly one `.dts` file, or exactly one `.dtb` file.
 
             `.dtsi` and `.h` files in the same directory or subdirectories may
             also be specified if you do not need extra search directories
@@ -359,8 +394,15 @@ dtb = rule(
             directories with `.dtsi` and `.h` files, use
             [`devicetree_library()`](../devicetree_library.bzl/devicetree_library)
             and add them to [`deps`](../dtb.bzl/dtb).
+
+            A `.dtb` file is rewritten with `dtc -I dtb` and `dtcopts`. This is
+            how to add padding (`-p`) or alignment (`-a`) to the output of
+            [`dtb_composite()`](../dtb_composite.bzl/dtb_composite), which
+            `fdtoverlay` packs, or to a prebuilt blob. It is not preprocessed,
+            so `preprocessopts` is an error, and `generate_symbols` has no
+            effect because symbols come from the input.
         """,
-            allow_files = [".dts", ".dtsi", ".h"],
+            allow_files = [".dts", ".dtb", ".dtsi", ".h"],
         ),
     },
     toolchains = [
@@ -371,7 +413,7 @@ dtb = rule(
 
 def _dtbo_impl(ctx):
     devicetree_toolchain_info = ctx.toolchains["//devicetree:toolchain_type"].devicetree_toolchain_info
-    split_sources = _split_sources(ctx.files.srcs, "dtso")
+    split_sources = _split_sources(ctx.files.srcs, ["dtso"])
 
     preprocessed = _preprocess(
         ctx = ctx,
